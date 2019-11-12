@@ -14,8 +14,7 @@ INCLUDE = -I./include
 
 # Options to the compiler.
 CFLAGS = -Wall -lrt -lm
-ALL_FLAGS = $(INCLUDE) $(CFLAGSINCLUDE = -I./include
-)
+ALL_FLAGS = $(INCLUDE) $(CFLAGS)
 
 # Libraries.
 LIB_PTASK = -L./lib -lptask
@@ -35,7 +34,7 @@ SRC = ./src
 
 # Target filename.
 MAIN = main
-SOURCE = 
+SOURCE = graphics mylib
 
 # Files to compile.
 BASE_FILES = $(MAIN) $(SOURCE)
