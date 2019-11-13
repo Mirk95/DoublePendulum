@@ -11,7 +11,10 @@
 // FUNCTIONS
 //------------------------------------------------------------------------------
 
-// Initialization of graphic interface
+/* Initialization of Allegro libray */
+void init_allegro();
+
+/* Initialization of graphic interface */
 void init_gui();
 
 #endif
