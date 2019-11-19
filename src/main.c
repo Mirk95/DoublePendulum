@@ -25,12 +25,14 @@ void degree_to_radians(int i)
 int read_file(FILE *f)
 {
     int i = 0;
-    int ret;
+    int ret = 0;
 
     while(ret != EOF && i < N) {
-        ret = fscanf(f, "%i %i %i %lf %lf %lf %lf %lf %lf", &np[i].id, 
-        &np[i].x0, &np[i].y0, &np[i].l1, &np[i].l2, &np[i].m1, &np[i].m2, 
-        &np[i].th1, &np[i].th2);
+        printf("Leggo file\n");
+        ret = fscanf(f, "%i %lf %lf %lf %lf %lf %lf %lf %lf", &np[i].id, 
+                &np[i].x0y0.x, &np[i].x0y0.y, &np[i].l1, &np[i].l2, &np[i].m1, 
+                &np[i].m2, &np[i].th1, &np[i].th2);
+        printf("Dopo prima riga\n");
         if (ret != EOF) {
             degree_to_radians(i);
             i++;
@@ -55,14 +57,14 @@ int main(void)
         printf("Error during opening file!\n");
         return EXIT_FAILURE;
     }
-
+    printf("PRIMA della lettura\n");
     n_pend = read_file(fp);
     fclose(fp);
 
-    for (int i = 0; i < n_pend; ++i) {
+    for (i = 0; i < n_pend; ++i) {
         printf("ID: %i\n", np[i].id);
-        printf("x0: %i\n", np[i].x0);
-        printf("y0: %i\n", np[i].y0);
+        printf("x0: %lf\n", np[i].x0y0.x);
+        printf("y0: %lf\n", np[i].x0y0.y);
         printf("l1: %lf\n", np[i].l1);
         printf("l2: %lf\n", np[i].l2);
         printf("m1: %lf\n", np[i].m1);

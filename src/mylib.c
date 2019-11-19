@@ -1,8 +1,11 @@
 #include <semaphore.h>
+#include <allegro.h>
+#include <math.h>
 
 #include "ptask.h"
 #include "mylib.h"
 #include "graphics.h"
+#include "main.h"
 
 /* Initialization shared memory */
 void init_shared_mem(struct mem_t *mem)
@@ -19,17 +22,23 @@ void init_shared_mem(struct mem_t *mem)
     for (i = 0; i < N; ++i) {
         // No pendulum at the beginning
         mem->check_pendulum[i] = 0;
+        mem->a1_v[i] = 0;
+        mem->a2_v[i] = 0;
+        mem->a1_a[i] = 0;
+        mem->a2_a[i] = 0;
+        mem->th1[i] = -1;
+        mem->th2[i] = -1;
+        mem->x0y0[i].x = -1;
+        mem->x0y0[i].y = -1;
+        mem->x1y1[i].x = -1;
+        mem->x1y1[i].y = -1;
+        mem->x2y2[i].x = -1;
+        mem->x2y2[i].y = -1;
     }
 
     for (i = 0; i < N + 1; ++i) {
         // No task at the beginning
         mem->pid[i] = -1;
-    }
-
-    for (i = 0; i < 2; ++i) {
-        // Current point and previous one initialized to -1
-        mem->xy[i].x = -1;
-        mem->xy[i].y = -1; 
     }
 
     sem_init(&mem->mutex, 0, 1);
@@ -149,6 +158,44 @@ void read_array()
 }
 */
 
+/* Computation acceleration first pendulum */
+double compute_acceleration1(struct pendulum_t p, double v1, double v2)
+{
+    double num1;                // Formula first part numerator
+    double num2;                // Formula second part numerator
+    double num3;                // Formula third part numerator
+    double num4;                // Formula fouth part numerator
+    double den;                 // Formula denominator
+    double res;                 // Formula result
+
+    num1 = - GRAVITY * (2 * p.m1 + p.m2) * sin(p.th1);
+    num2 = - p.m2 * GRAVITY * sin(p.th1 - 2 * p.th2);
+    num3 = -2 * sin(p.th1 - p.th2) * p.m2;
+    num4 = v2 * v2 * p.l2 + v1 * v1 * cos(p.th1 - p.th2);
+    den = p.l1 * (2 * p.m1 + p.m2 - p.m2 * cos(2 *p.th1 - 2 * p.th2));
+    res = (num1 + num2 + num3 * num4) / den;
+    return res;
+}
+
+/* Computation acceleration second pendulum */
+double compute_acceleration2(struct pendulum_t p, double v1, double v2)
+{
+    double num1;                // Formula first part numerator
+    double num2;                // Formula second part numerator
+    double num3;                // Formula third part numerator
+    double num4;                // Formula fouth part numerator
+    double den;                 // Formula denominator
+    double res;                 // Formula result
+
+    num1 = 2 * sin(p.th1 - p.th2);
+    num2 = (v1 * v1 * p.l1 * (p.m1 + p.m2));
+    num3 = GRAVITY * (p.m1 + p.m2) * cos(p.th1);
+    num4 = v2 * v2 * p.l2 * p.m2 * cos(p.th1 - p.th2);
+    den = p.l2 * (2 * p.m1 + p.m2 - p.m2 * cos(2 * p.th1 - 2 * p.th2));
+    res = (num1 * (num2 + num3 + num4)) / den;
+    return res;
+}
+
 /* Initialization of task's parameters */
 tpars init_param(int priority, int period)
 {
@@ -163,21 +210,105 @@ tpars init_param(int priority, int period)
     return params;
 }
 
+/* Pendulum task */
+ptask pend()
+{
+    int end = 0;
+    int index = 0;
+    double vel_1 = 0;
+    double vel_2 = 0;
+    double acc_1 = 0;
+    double acc_2 = 0;
+    struct pendulum_t p;
+
+    index = ptask_get_index();
+    printf("Index: %d\n", index);
+    p.id = np[index - 1].id;
+    p.l1 = np[index - 1].l1;
+    p.l2 = np[index - 1].l2;
+    p.m1 = np[index - 1].m1;
+    p.m2 = np[index - 1].m2;
+    p.th1 = np[index - 1].th1;
+    p.th2 = np[index - 1].th2;
+    p.x0y0.x = np[index - 1].x0y0.x;
+    p.x0y0.y = np[index - 1].x0y0.y;
+
+    start_writer();
+    shared_mem.x0y0[index - 1].x = p.x0y0.x;
+    shared_mem.x0y0[index - 1].y = p.x0y0.y;
+    shared_mem.th1[index - 1] = p.th1;
+    shared_mem.th2[index - 1] = p.th2;
+    shared_mem.x1y1[index - 1].x = p.l1 * sin(shared_mem.th1[index - 1]);
+    shared_mem.x1y1[index - 1].y = p.l1 * cos(shared_mem.th1[index - 1]);
+    shared_mem.x2y2[index - 1].x = shared_mem.x1y1[index - 1].x + p.l2 * sin(shared_mem.th2[index - 1]);
+    shared_mem.x2y2[index - 1].y = shared_mem.x1y1[index - 1].y + p.l2 * cos(shared_mem.th2[index - 1]);
+    // printf("s_m: th1[%d]: %f\n", index - 1, shared_mem.th1[index - 1]);
+    // printf("s_m: th2[%d]: %f\n", index - 1, shared_mem.th2[index - 1]);
+    // printf("s_m: x1[%d]: %f\n", index - 1, shared_mem.x1y1[index - 1].x);
+    // printf("s_m: y1[%d]: %f\n", index - 1, shared_mem.x1y1[index - 1].y);
+    end_writer();
+
+    while (!end) {
+        check_end();
+        // i++;
+        // start_writer();
+        // shared_mem.count_pendulums = i;
+        // end_writer();
+
+        start_reader();
+        vel_1 = shared_mem.a1_v[index - 1];
+        vel_2 = shared_mem.a2_v[index - 1];
+        acc_1 = shared_mem.a1_a[index - 1];
+        acc_2 = shared_mem.a2_a[index - 1];
+        // printf("vel_1: %f\n", vel_1);
+        // printf("vel_2: %f\n", vel_2);
+        // printf("acc_1: %f\n", acc_1);
+        // printf("acc_2: %f\n", acc_2);
+        end_reader();
+
+        start_writer();
+        shared_mem.a1_a[index - 1] = compute_acceleration1(p, shared_mem.a1_v[index - 1], shared_mem.a2_v[index - 1]);
+        shared_mem.a2_a[index - 1] = compute_acceleration2(p, shared_mem.a1_v[index - 1], shared_mem.a2_v[index - 1]);
+        shared_mem.a1_v[index - 1] += acc_1;
+        shared_mem.a2_v[index - 1] += acc_2;
+        shared_mem.th1[index - 1] += shared_mem.a1_v[index - 1];
+        shared_mem.th2[index - 1] += shared_mem.a2_v[index - 1];
+        
+        shared_mem.x1y1[index - 1].x = shared_mem.x0y0[index - 1].x + p.l1 * sin(shared_mem.th1[index - 1]);
+        shared_mem.x1y1[index - 1].y = shared_mem.x0y0[index - 1].y + p.l1 * cos(shared_mem.th1[index - 1]);
+        shared_mem.x2y2[index - 1].x = shared_mem.x1y1[index - 1].x + p.l2 * sin(shared_mem.th2[index - 1]);
+        shared_mem.x2y2[index - 1].y = shared_mem.x1y1[index - 1].y + p.l2 * cos(shared_mem.th2[index - 1]);
+        end_writer();
+
+        ptask_wait_for_period();
+    }
+}
+
+
 /* Manager for the program */
 void manager()
 {
-    int pid_g;                      // Graphic task index
+    int pid_g, pid_p;               // Graphic task index
     static tpars params;            // Parameters for graphic task
+    int i;
 
     // Initialization of the shared memory
     init_shared_mem(&shared_mem);
     // Create graphic task
     params = init_param(PRIO_G, PER_G);
     pid_g = ptask_create_param(graphic, &params);
-    
     start_writer();
     shared_mem.pid[0] = pid_g;
     end_writer();
+    // Create pendulum task
+    params = init_param(PRIO_P, PER_P);
+    for (i = 0; i < N; ++i) {
+        pid_p = ptask_create_param(pend, &params);
+        start_writer();
+        shared_mem.pid[i + 1] = pid_p;
+        end_writer();
+    }
+
 }
 
 
