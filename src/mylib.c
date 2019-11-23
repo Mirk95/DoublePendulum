@@ -10,18 +10,15 @@
 /* Initialization shared memory */
 void init_shared_mem(struct mem_t *mem)
 {
-    int i;
-    mem->count_pendulums = 0;
-    mem->end = 0;
+    int i = 0;
 
+    mem->end = 0;
     mem->nr = 0;
     mem->nbr = 0;
     mem->nw = 0;
     mem->nbw = 0;
 
-    for (i = 0; i < N; ++i) {
-        // No pendulum at the beginning
-        mem->check_pendulum[i] = 0;
+    for (i = 0; i < MAX_P; ++i) {
         mem->x0y0[i].x = -1;
         mem->x0y0[i].y = -1;
         mem->x1y1[i].x = -1;
@@ -30,7 +27,7 @@ void init_shared_mem(struct mem_t *mem)
         mem->x2y2[i].y = -1;
     }
 
-    for (i = 0; i < N + 1; ++i) {
+    for (i = 0; i < MAX_P + 1; ++i) {
         // No task at the beginning
         mem->pid[i] = -1;
     }
@@ -125,33 +122,6 @@ void end_reader()
     sem_post(&shared_mem.mutex);
 }
 
-/*
-void fill_array(int id)
-{
-    int i;
-    start_writer();
-    shared_mem.check_pendulum[id] = 1;
-    for (i = 0; i < N; ++i) {
-        printf("check_pendulum[%i] = %i\n", i, shared_mem.check_pendulum[i]);
-    }
-    end_writer();
-}
-
-void read_array()
-{
-    int i;
-    start_reader();
-    for (i = 0; i < N; ++i) {
-        if (shared_mem.check_pendulum[i] == 1) {
-            shared_mem.count_pendulums++;
-        }
-    }
-    //printf("Counter of ones: %i\n", shared_mem.count_pendulums);
-    shared_mem.count_pendulums = 0;
-    end_reader();
-}
-*/
-
 /* Computation acceleration first pendulum */
 double compute_acceleration1(struct pendulum_t p, double v1, double v2)
 {
@@ -230,13 +200,17 @@ ptask pend()
     p.x0y0.x = np[index - 1].x0y0.x;
     p.x0y0.y = np[index - 1].x0y0.y;
 
+    printf("p.id pendolo %d: %d\n", index - 1, p.id);
+    printf("p.l1 pendolo %d: %lf\n", index - 1, p.l1);
+    printf("p.l2 pendolo %d: %lf\n", index - 1, p.l2);
+
     start_writer();
     shared_mem.x0y0[index - 1].x = p.x0y0.x;
     shared_mem.x0y0[index - 1].y = p.x0y0.y;
     end_writer();
 
     while (!end) {
-        check_end();
+        end = check_end();
 
         acc_1 = compute_acceleration1(p, vel_1, vel_2);
         acc_2 = compute_acceleration2(p, vel_1, vel_2);
@@ -294,22 +268,25 @@ void manager()
 {
     int pid_g, pid_p;               // Graphic task index
     static tpars params;            // Parameters for graphic task
-    int i;
+    int i = 0;                      // Variable for cycle
 
     // Initialization of the shared memory
     init_shared_mem(&shared_mem);
+
     // Create graphic task
     params = init_param(PRIO_G, PER_G);
     pid_g = ptask_create_param(graphic, &params);
     start_writer();
     shared_mem.pid[0] = pid_g;
     end_writer();
-    // Create pendulum task
+
+    // Create pendulum tasks
     params = init_param(PRIO_P, PER_P);
-    for (i = 0; i < N; ++i) {
+    for (i = 0; i < MAX_P; ++i) {
         pid_p = ptask_create_param(pend, &params);
         start_writer();
         shared_mem.pid[i + 1] = pid_p;
+        // printf("shared_mem.pid[%d] = %d\n", i+1, shared_mem.pid[i+1]);
         end_writer();
     }
 

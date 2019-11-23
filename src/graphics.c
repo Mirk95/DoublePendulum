@@ -31,42 +31,36 @@ void init_gui()
     textout_centre_ex(screen, font, text, XWIN/2, YWIN/2 + 30, WHITE, BKG);
 }
 
+/* Initialendulums graphic interface after ENTER pressing */
+void init_pendulums_gui()
+{
+    clear_to_color(screen, BKG);
+    rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
+}
 
 /* Graphic task */
 ptask graphic()
 {
     int i;
     int end = 0;
-    double x1;
-    double y1;
-    // int var = 0;
 
     while (!end) {
-        check_end();
-        clear_to_color(screen, BKG);
-        // rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
-        for (i = 0; i < N; ++i) {
-            start_reader();
-            circlefill(screen, shared_mem.x0y0[i].x, shared_mem.x0y0[i].y, 5, i+1);
-            // circle(screen, shared_mem.x0y0[i].x, shared_mem.x0y0[i].y, np[i].l1, 14);
-            line(screen, shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, 
-                        shared_mem.x0y0[i].x, shared_mem.x0y0[i].y, i+1);
-            circlefill(screen, shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, 5, i+1);
-            line(screen, shared_mem.x2y2[i].x, shared_mem.x2y2[i].y, 
-                        shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, i+1);
-            circlefill(screen, shared_mem.x2y2[i].x, shared_mem.x2y2[i].y, 5, i+1);
-            end_reader();
-        }
+        end = check_end();
+        init_pendulums_gui();
 
-        start_reader();
-        x1 = shared_mem.x1y1[0].x;
-        y1 = shared_mem.x1y1[0].y;
-        // printf("x1 in graphic: %f\n", x1);
-        // printf("y1 in graphic: %f\n", y1);
-        // var = shared_mem.count_pendulums;
-        end_reader();
-        // circlefill(screen, x1, y1, 6, 1);
-        // rectfill(screen, 600+var, 200+var, 630, 190, 14);
+        for (i = 0; i < MAX_P; ++i) {
+            if (check_pendulum[i] != 0) {
+                start_reader();
+                circlefill(screen, shared_mem.x0y0[i].x, shared_mem.x0y0[i].y, 5, i+1);
+                line(screen, shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, 
+                            shared_mem.x0y0[i].x, shared_mem.x0y0[i].y, i+1);
+                circlefill(screen, shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, 5, i+1);
+                line(screen, shared_mem.x2y2[i].x, shared_mem.x2y2[i].y, 
+                            shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, i+1);
+                circlefill(screen, shared_mem.x2y2[i].x, shared_mem.x2y2[i].y, 5, i+1);
+                end_reader();
+            }
+        }
 
         ptask_wait_for_period();
     }

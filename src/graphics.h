@@ -18,11 +18,11 @@ void init_allegro();
 /* Initial graphic interface */
 void init_gui();
 
+/* Initial pendulums graphic interface after ENTER pressing */
+void init_pendulums_gui();
+
 /* Graphic task */
 ptask graphic();
 
 
 #endif
-
-/* 
- */

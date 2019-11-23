@@ -10,15 +10,16 @@
 #define NAMEFILE    "params.txt"    // Name file parameters pendulums
 #define XWIN        1280            // Window X resolution
 #define YWIN        800             // Window Y resolution
-#define PAD         30              // Padding for initial gui
+#define PAD         20              // Padding for initial gui
 #define MSG_LEN     50              // Max message length 
-#define N           5               // Max number of pendulums
+#define MAX_P       10              // Max number of pendulums
 #define GRAVITY     9.81            // Gravitational constant
 #define PI          3.14159         // Pi greco
 #define PER_G       35              // Period graphic task
 #define PRIO_G      20              // Priority graphic task
 #define PER_P       90              // Period pendulum task
 #define PRIO_P      10              // Priority pendulum task
+
 
 //------------------------------------------------------------------------------
 // STRUCTURE DEFINITIONS
@@ -42,18 +43,15 @@ struct pendulum_t {
     struct point_t  x0y0;           // Initial point pendulum
 };
 
-// struct pendulum_t  pendulums[N];
 
 /* Shared memory structure definitions */
 struct mem_t {
-    int         check_pendulum[N];  // Checking presence of pendulums
-    int         count_pendulums;    // Counter active pendulums
-    int         end;                // Exit variable: no more tasks
-    int         pid[N + 1];         // Array with tasks' indexes
+    int         end;                    // Exit variable: no more tasks
+    int         pid[MAX_P + 1];         // Array with tasks' indexes
     
-    struct point_t x0y0[N];         // Position point (x0, y0) -> initial point
-    struct point_t x1y1[N];         // Position point (x1,y1) -> first mass
-    struct point_t x2y2[N];         // Position point (x2,y2) -> second mass
+    struct point_t x0y0[MAX_P];         // Position point (x0,y0) -> zero point
+    struct point_t x1y1[MAX_P];         // Position point (x1,y1) -> first mass
+    struct point_t x2y2[MAX_P];         // Position point (x2,y2) -> second mass
 
     int     nr;                     // Number of active readers
     int     nbr;                    // Number of blocked readers
