@@ -22,12 +22,6 @@ void init_shared_mem(struct mem_t *mem)
     for (i = 0; i < N; ++i) {
         // No pendulum at the beginning
         mem->check_pendulum[i] = 0;
-        mem->a1_v[i] = 0;
-        mem->a2_v[i] = 0;
-        mem->a1_a[i] = 0;
-        mem->a2_a[i] = 0;
-        mem->th1[i] = -1;
-        mem->th2[i] = -1;
         mem->x0y0[i].x = -1;
         mem->x0y0[i].y = -1;
         mem->x1y1[i].x = -1;
@@ -161,31 +155,32 @@ void read_array()
 /* Computation acceleration first pendulum */
 double compute_acceleration1(struct pendulum_t p, double v1, double v2)
 {
-    double num1;                // Formula first part numerator
-    double num2;                // Formula second part numerator
-    double num3;                // Formula third part numerator
-    double num4;                // Formula fouth part numerator
-    double den;                 // Formula denominator
-    double res;                 // Formula result
+    double num1 = 0;            // Formula first part numerator
+    double num2 = 0;            // Formula second part numerator
+    double num3 = 0;            // Formula third part numerator
+    double num4 = 0;            // Formula fouth part numerator
+    double den = 0;             // Formula denominator
+    double res = 0;             // Formula result
 
     num1 = - GRAVITY * (2 * p.m1 + p.m2) * sin(p.th1);
     num2 = - p.m2 * GRAVITY * sin(p.th1 - 2 * p.th2);
     num3 = -2 * sin(p.th1 - p.th2) * p.m2;
-    num4 = v2 * v2 * p.l2 + v1 * v1 * cos(p.th1 - p.th2);
+    num4 = v2 * v2 * p.l2 + v1 * v1 * p.l1 * cos(p.th1 - p.th2);
     den = p.l1 * (2 * p.m1 + p.m2 - p.m2 * cos(2 *p.th1 - 2 * p.th2));
     res = (num1 + num2 + num3 * num4) / den;
+
     return res;
 }
 
 /* Computation acceleration second pendulum */
 double compute_acceleration2(struct pendulum_t p, double v1, double v2)
 {
-    double num1;                // Formula first part numerator
-    double num2;                // Formula second part numerator
-    double num3;                // Formula third part numerator
-    double num4;                // Formula fouth part numerator
-    double den;                 // Formula denominator
-    double res;                 // Formula result
+    double num1 = 0;            // Formula first part numerator
+    double num2 = 0;            // Formula second part numerator
+    double num3 = 0;            // Formula third part numerator
+    double num4 = 0;            // Formula fouth part numerator
+    double den = 0;             // Formula denominator
+    double res = 0;             // Formula result
 
     num1 = 2 * sin(p.th1 - p.th2);
     num2 = (v1 * v1 * p.l1 * (p.m1 + p.m2));
@@ -193,6 +188,7 @@ double compute_acceleration2(struct pendulum_t p, double v1, double v2)
     num4 = v2 * v2 * p.l2 * p.m2 * cos(p.th1 - p.th2);
     den = p.l2 * (2 * p.m1 + p.m2 - p.m2 * cos(2 * p.th1 - 2 * p.th2));
     res = (num1 * (num2 + num3 + num4)) / den;
+
     return res;
 }
 
@@ -215,6 +211,7 @@ ptask pend()
 {
     int end = 0;
     int index = 0;
+    int count = 0;
     double vel_1 = 0;
     double vel_2 = 0;
     double acc_1 = 0;
@@ -236,49 +233,56 @@ ptask pend()
     start_writer();
     shared_mem.x0y0[index - 1].x = p.x0y0.x;
     shared_mem.x0y0[index - 1].y = p.x0y0.y;
-    shared_mem.th1[index - 1] = p.th1;
-    shared_mem.th2[index - 1] = p.th2;
-    shared_mem.x1y1[index - 1].x = p.l1 * sin(shared_mem.th1[index - 1]);
-    shared_mem.x1y1[index - 1].y = p.l1 * cos(shared_mem.th1[index - 1]);
-    shared_mem.x2y2[index - 1].x = shared_mem.x1y1[index - 1].x + p.l2 * sin(shared_mem.th2[index - 1]);
-    shared_mem.x2y2[index - 1].y = shared_mem.x1y1[index - 1].y + p.l2 * cos(shared_mem.th2[index - 1]);
-    // printf("s_m: th1[%d]: %f\n", index - 1, shared_mem.th1[index - 1]);
-    // printf("s_m: th2[%d]: %f\n", index - 1, shared_mem.th2[index - 1]);
-    // printf("s_m: x1[%d]: %f\n", index - 1, shared_mem.x1y1[index - 1].x);
-    // printf("s_m: y1[%d]: %f\n", index - 1, shared_mem.x1y1[index - 1].y);
     end_writer();
 
     while (!end) {
         check_end();
-        // i++;
-        // start_writer();
-        // shared_mem.count_pendulums = i;
-        // end_writer();
 
-        start_reader();
-        vel_1 = shared_mem.a1_v[index - 1];
-        vel_2 = shared_mem.a2_v[index - 1];
-        acc_1 = shared_mem.a1_a[index - 1];
-        acc_2 = shared_mem.a2_a[index - 1];
-        // printf("vel_1: %f\n", vel_1);
-        // printf("vel_2: %f\n", vel_2);
-        // printf("acc_1: %f\n", acc_1);
-        // printf("acc_2: %f\n", acc_2);
-        end_reader();
+        acc_1 = compute_acceleration1(p, vel_1, vel_2);
+        acc_2 = compute_acceleration2(p, vel_1, vel_2);
+        printf("acc_1 for pend %d: %lf\n", index - 1, acc_1);
+        printf("acc_2 for pend %d: %lf\n", index -1, acc_2);
+        count++;
 
         start_writer();
-        shared_mem.a1_a[index - 1] = compute_acceleration1(p, shared_mem.a1_v[index - 1], shared_mem.a2_v[index - 1]);
-        shared_mem.a2_a[index - 1] = compute_acceleration2(p, shared_mem.a1_v[index - 1], shared_mem.a2_v[index - 1]);
-        shared_mem.a1_v[index - 1] += acc_1;
-        shared_mem.a2_v[index - 1] += acc_2;
-        shared_mem.th1[index - 1] += shared_mem.a1_v[index - 1];
-        shared_mem.th2[index - 1] += shared_mem.a2_v[index - 1];
-        
-        shared_mem.x1y1[index - 1].x = shared_mem.x0y0[index - 1].x + p.l1 * sin(shared_mem.th1[index - 1]);
-        shared_mem.x1y1[index - 1].y = shared_mem.x0y0[index - 1].y + p.l1 * cos(shared_mem.th1[index - 1]);
-        shared_mem.x2y2[index - 1].x = shared_mem.x1y1[index - 1].x + p.l2 * sin(shared_mem.th2[index - 1]);
-        shared_mem.x2y2[index - 1].y = shared_mem.x1y1[index - 1].y + p.l2 * cos(shared_mem.th2[index - 1]);
+        shared_mem.x1y1[index - 1].x = shared_mem.x0y0[index - 1].x + p.l1 * sin(p.th1);
+        shared_mem.x1y1[index - 1].y = shared_mem.x0y0[index - 1].y + p.l1 * cos(p.th1);
+        shared_mem.x2y2[index - 1].x = shared_mem.x1y1[index - 1].x + p.l2 * sin(p.th2);
+        shared_mem.x2y2[index - 1].y = shared_mem.x1y1[index - 1].y + p.l2 * cos(p.th2);
         end_writer();
+
+        if (abs(vel_1) < 30 || abs(vel_2) < 30) {
+            printf("Ciao\n");
+            vel_1 += acc_1;
+            vel_2 += acc_2;
+        }
+
+
+        printf("vel_1 for pend %d: %lf\n", index - 1, vel_1);
+        printf("vel_2 for pend %d: %lf\n", index - 1, vel_2);
+        printf("angle1 before for pend %d: %lf\n", index - 1, p.th1);
+        printf("angle2 before for pend %d: %lf\n", index - 1, p.th2);
+        p.th1 += vel_1;
+        p.th2 += vel_2;
+        p.th1 = (fmod(p.th1, 2*PI));
+        p.th2 = (fmod(p.th2, 2*PI));
+
+
+        if (abs(p.th1) > 2*PI) {
+            printf("ESCO DALL'ANGOLO\n");
+            p.th1 = p.th1 - ((p.th1 >= 0 ) ? 1 : -1) * 2*PI;
+        } 
+
+        if (abs(p.th2) > 2*PI) {
+            printf("ESCO DALL'ANGOLO\n");
+            p.th2 = p.th2 - ((p.th2 >= 0 ) ? 1 : -1 )* 2*PI;
+        } 
+
+        printf("angle1 after for pend %d: %lf\n", index - 1, p.th1);
+        printf("angle2 after for pend %d: %lf\n", index - 1, p.th2);
+
+
+        printf("Count: %d\n", count);
 
         ptask_wait_for_period();
     }

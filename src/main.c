@@ -76,8 +76,8 @@ int main(void)
     do {
         if (keypressed()) {
             k = readkey() >> 8;
-            // If press SPACE, new pendulum starts.
-            if (k == KEY_SPACE) {
+            // If press ENTER, new pendulum starts.
+            if (k == KEY_ENTER) {
                 manager();     // Shared memory initialization
             }
         }

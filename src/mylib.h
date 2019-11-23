@@ -15,9 +15,9 @@
 #define N           5               // Max number of pendulums
 #define GRAVITY     9.81            // Gravitational constant
 #define PI          3.14159         // Pi greco
-#define PER_G       25              // Period graphic task
+#define PER_G       35              // Period graphic task
 #define PRIO_G      20              // Priority graphic task
-#define PER_P       30              // Period pendulum task
+#define PER_P       90              // Period pendulum task
 #define PRIO_P      10              // Priority pendulum task
 
 //------------------------------------------------------------------------------
@@ -50,12 +50,6 @@ struct mem_t {
     int         count_pendulums;    // Counter active pendulums
     int         end;                // Exit variable: no more tasks
     int         pid[N + 1];         // Array with tasks' indexes
-    double      a1_v[N];            // Array first derivatives first pendulum
-    double      a2_v[N];            // Array first derivatives second pendulum
-    double      a1_a[N];            // Array second derivatives first pendulum
-    double      a2_a[N];            // Array second derivatives second pendulum
-    double      th1[N];             // Array angles first pendulum
-    double      th2[N];             // Array angles second pendulum
     
     struct point_t x0y0[N];         // Position point (x0, y0) -> initial point
     struct point_t x1y1[N];         // Position point (x1,y1) -> first mass
