@@ -18,10 +18,13 @@ struct pendulum_t np[MAX_P];            // Struct MAX_P double pendulums
 void init_check_pendulum();
 
 /* Transformation from degrees to radians */
-void degree_to_radians();
+void degree_to_radians(int i);
 
 /* Reading parameter's file */
-int read_file();
+int read_file(FILE *f);
+
+/* Checking number pendulums in file */
+int check_read(int return_value);
 
 /* Checking pedulum lengths and borders gui */
 void check_border();

@@ -6,6 +6,9 @@
 #include "mylib.h"
 #include "main.h"
 
+char text[MSG_LEN];      // Temp buffer for text message
+
+
 /* Initialization of Allegro libray */
 void init_allegro()
 {
@@ -19,8 +22,6 @@ void init_allegro()
 /* Initial graphic interface */
 void init_gui()
 {
-    char text[MSG_LEN];      // Temp buffer for text message
-
     rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
     rect(screen, 2 * PAD, 2 * PAD, XWIN - 2 * PAD, YWIN - 2 * PAD, WHITE);
     sprintf(text, "DOUBLE PENDULUMS VIEWER");
@@ -31,11 +32,30 @@ void init_gui()
     textout_centre_ex(screen, font, text, XWIN/2, YWIN/2 + 30, WHITE, BKG);
 }
 
-/* Initialendulums graphic interface after ENTER pressing */
+/* Initial pendulums graphic interface after ENTER pressing */
 void init_pendulums_gui()
 {
     clear_to_color(screen, BKG);
     rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
+}
+
+/* Retrieve Shared Memory parameters */
+void retrieve_sm(struct point_t *g_x0y0, struct point_t *g_x1y1, 
+                struct point_t *g_x2y2)
+{
+    int i;
+    for (i = 0; i < MAX_P; i++) {
+        if (check_pendulum[i] != 0) {
+            start_reader();
+            g_x0y0[i].x = shared_mem.x0y0[i].x;
+            g_x0y0[i].y = shared_mem.x0y0[i].y;
+            g_x1y1[i].x = shared_mem.x1y1[i].x;
+            g_x1y1[i].y = shared_mem.x1y1[i].y;
+            g_x2y2[i].x = shared_mem.x2y2[i].x;
+            g_x2y2[i].y = shared_mem.x2y2[i].y;
+            end_reader();
+        }
+    }
 }
 
 /* Graphic task */
@@ -43,22 +63,35 @@ ptask graphic()
 {
     int i;
     int end = 0;
+    struct point_t graph_x0y0[MAX_P];
+    struct point_t graph_x1y1[MAX_P];
+    struct point_t graph_x2y2[MAX_P];
 
     while (!end) {
         end = check_end();
         init_pendulums_gui();
 
-        for (i = 0; i < MAX_P; ++i) {
+        retrieve_sm(graph_x0y0, graph_x1y1, graph_x2y2);
+
+        for (i = 0; i < MAX_P; i++) {
             if (check_pendulum[i] != 0) {
-                start_reader();
-                circlefill(screen, shared_mem.x0y0[i].x, shared_mem.x0y0[i].y, 5, i+1);
-                line(screen, shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, 
-                            shared_mem.x0y0[i].x, shared_mem.x0y0[i].y, i+1);
-                circlefill(screen, shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, 5, i+1);
-                line(screen, shared_mem.x2y2[i].x, shared_mem.x2y2[i].y, 
-                            shared_mem.x1y1[i].x, shared_mem.x1y1[i].y, i+1);
-                circlefill(screen, shared_mem.x2y2[i].x, shared_mem.x2y2[i].y, 5, i+1);
-                end_reader();
+                printf("check_pendulum[%d] = %d\n", i, check_pendulum[i]);
+                printf("graph_x0y0 x[%d]: %lf\n", i, graph_x0y0[i].x);
+                printf("graph_x0y0 y[%d]: %lf\n", i, graph_x0y0[i].y);
+                printf("graph_x1y1 x[%d]: %lf\n", i, graph_x1y1[i].x);
+                printf("graph_x1y1 y[%d]: %lf\n", i, graph_x1y1[i].y);
+                printf("graph_x2y2 x[%d]: %lf\n", i, graph_x2y2[i].x);
+                printf("graph_x2y2 y[%d]: %lf\n", i, graph_x2y2[i].y);
+                sprintf(text, "%d", i);
+                textout_centre_ex(screen, font, text, graph_x0y0[i].x, 
+                                graph_x0y0[i].y - 25, WHITE, BKG);
+                circlefill(screen, graph_x0y0[i].x, graph_x0y0[i].y, 5, i+1);
+                line(screen, graph_x1y1[i].x, graph_x1y1[i].y, 
+                            graph_x0y0[i].x, graph_x0y0[i].y, i+1);
+                circlefill(screen, graph_x1y1[i].x, graph_x1y1[i].y, 5, i+1);
+                line(screen, graph_x2y2[i].x, graph_x2y2[i].y, 
+                            graph_x1y1[i].x, graph_x1y1[i].y, i+1);
+                circlefill(screen, graph_x2y2[i].x, graph_x2y2[i].y, 5, i+1);
             }
         }
 

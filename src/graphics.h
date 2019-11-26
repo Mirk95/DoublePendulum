@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include "mylib.h"
+
 //------------------------------------------------------------------------------
 // GLOBAL CONSTANTS
 //------------------------------------------------------------------------------
@@ -20,6 +22,11 @@ void init_gui();
 
 /* Initial pendulums graphic interface after ENTER pressing */
 void init_pendulums_gui();
+
+
+/* Retrieve Shared Memory parameters */
+void retrieve_sm(struct point_t *g_x0y0, struct point_t *g_x1y1, 
+                struct point_t *g_x2y2);
 
 /* Graphic task */
 ptask graphic();

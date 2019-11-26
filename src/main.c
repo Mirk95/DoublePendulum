@@ -53,7 +53,7 @@ int read_file(FILE *f)
             &np[i].m1, &np[i].m2, &np[i].th1, &np[i].th2);
 
         if (val != EOF) {
-            check_pendulum[i] = 1;
+            //check_pendulum[i] = 1;
             degree_to_radians(i);
             i++;
         }
@@ -86,24 +86,30 @@ int check_read(int return_value)
 void check_border()
 {
     int radius = 0;
+    int j = 0;
 
-    for (int i = 0; i < MAX_P; ++i) {
-        if (check_pendulum[i] != 0) {
-            radius = np[i].l1 + np[i].l2;
-            if ((np[i].x0y0.x - radius) < PAD || 
-                (np[i].x0y0.y - radius) < PAD) {
-                // Pendulum exits from left border or from top border
-                check_pendulum[i] = 0;
-                printf("Pendulum %d not shown because out of borders!\n", i+1);
-            }
-
-            if ((np[i].x0y0.x + radius) > (XWIN - PAD) || 
-                (np[i].x0y0.y + radius) > (YWIN - PAD)) {
-                // Pendulum exits from right border or from bottom border
-                check_pendulum[i] = 0;
-                printf("Pendulum %d not shown because out of borders!\n", i+1);
-            }
+    for (int i = 0; i < MAX_P; i++) {
+        
+        radius = np[i].l1 + np[i].l2;
+        if ((np[i].x0y0.x - radius) >= PAD && 
+            (np[i].x0y0.y - radius) >= PAD) {
+            // Pendulum exits from left border or from top border
+            check_pendulum[j] = 1;
+            printf("Pendulum %d not shown because out of borders!\n", i+1);
         }
+        
+        if ((np[i].x0y0.x + radius) <= (XWIN - PAD) && 
+            (np[i].x0y0.y + radius) <= (YWIN - PAD) && check_pendulum[j] == 1) {
+            // Pendulum exits from right border or from bottom border
+            check_pendulum[j] = 1;
+            printf("Pendulum %d not shown because out of borders!\n", i+1);
+            j++;
+        }
+        else
+        {
+            check_pendulum[j] = 0;
+        }
+        
     }
 }
 

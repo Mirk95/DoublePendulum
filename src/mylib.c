@@ -18,7 +18,7 @@ void init_shared_mem(struct mem_t *mem)
     mem->nw = 0;
     mem->nbw = 0;
 
-    for (i = 0; i < MAX_P; ++i) {
+    for (i = 0; i < MAX_P; i++) {
         mem->x0y0[i].x = -1;
         mem->x0y0[i].y = -1;
         mem->x1y1[i].x = -1;
@@ -27,7 +27,7 @@ void init_shared_mem(struct mem_t *mem)
         mem->x2y2[i].y = -1;
     }
 
-    for (i = 0; i < MAX_P + 1; ++i) {
+    for (i = 0; i < MAX_P + 1; i++) {
         // No task at the beginning
         mem->pid[i] = -1;
     }
@@ -189,7 +189,8 @@ ptask pend()
     struct pendulum_t p;
 
     index = ptask_get_index();
-    printf("Index: %d\n", index);
+    printf("Sono il pendolo con Index: %d\n", index);
+
     p.id = np[index - 1].id;
     p.l1 = np[index - 1].l1;
     p.l2 = np[index - 1].l2;
@@ -200,14 +201,21 @@ ptask pend()
     p.x0y0.x = np[index - 1].x0y0.x;
     p.x0y0.y = np[index - 1].x0y0.y;
 
-    printf("p.id pendolo %d: %d\n", index - 1, p.id);
-    printf("p.l1 pendolo %d: %lf\n", index - 1, p.l1);
-    printf("p.l2 pendolo %d: %lf\n", index - 1, p.l2);
-
     start_writer();
     shared_mem.x0y0[index - 1].x = p.x0y0.x;
     shared_mem.x0y0[index - 1].y = p.x0y0.y;
+    shared_mem.x1y1[index - 1].x = p.x0y0.x + p.l1 * sin(p.th1);
+    shared_mem.x1y1[index - 1].y = p.x0y0.y + p.l1 * cos(p.th1);
+    shared_mem.x2y2[index - 1].x = p.x0y0.x + p.l1 * sin(p.th1) + p.l2 * sin(p.th2);
+    shared_mem.x2y2[index - 1].y = p.x0y0.y + p.l1 * cos(p.th1) + p.l2 * cos(p.th2);
     end_writer();
+
+    printf("p.id pendolo %d: %d\n", (index - 1), p.id);
+    printf("p.l1 pendolo %d: %lf\n", (index - 1), p.l1);
+    printf("p.l2 pendolo %d: %lf\n", (index - 1), p.l2);
+    printf("p.x0 pendolo %d: %lf\n", (index - 1), p.x0y0.x);
+
+    //sleep(1);
 
     while (!end) {
         end = check_end();
@@ -216,14 +224,16 @@ ptask pend()
         acc_2 = compute_acceleration2(p, vel_1, vel_2);
         printf("acc_1 for pend %d: %lf\n", index - 1, acc_1);
         printf("acc_2 for pend %d: %lf\n", index -1, acc_2);
+        // sleep(1);
         count++;
 
-        start_writer();
-        shared_mem.x1y1[index - 1].x = shared_mem.x0y0[index - 1].x + p.l1 * sin(p.th1);
-        shared_mem.x1y1[index - 1].y = shared_mem.x0y0[index - 1].y + p.l1 * cos(p.th1);
-        shared_mem.x2y2[index - 1].x = shared_mem.x1y1[index - 1].x + p.l2 * sin(p.th2);
-        shared_mem.x2y2[index - 1].y = shared_mem.x1y1[index - 1].y + p.l2 * cos(p.th2);
-        end_writer();
+        // if(abs(acc_1) > 10 || abs(acc_2) > 10) {
+        //     printf("Accelerazione calmierata\n");
+        //     acc_1 = acc_1 / 10;
+        //     acc_2 = acc_2 / 10;
+        //     vel_1 = vel_1 / 10;
+        //     vel_2 = vel_2 / 10;
+        // }
 
         if (abs(vel_1) < 30 || abs(vel_2) < 30) {
             printf("Ciao\n");
@@ -232,15 +242,18 @@ ptask pend()
         }
 
 
-        printf("vel_1 for pend %d: %lf\n", index - 1, vel_1);
-        printf("vel_2 for pend %d: %lf\n", index - 1, vel_2);
-        printf("angle1 before for pend %d: %lf\n", index - 1, p.th1);
-        printf("angle2 before for pend %d: %lf\n", index - 1, p.th2);
+        printf("vel_1 for pend %d: %lf\n", (index - 1), vel_1);
+        printf("vel_2 for pend %d: %lf\n", (index - 1), vel_2);
+        printf("angle1 before for pend %d: %lf\n", (index - 1), p.th1);
+        printf("angle2 before for pend %d: %lf\n", (index - 1), p.th2);
+        //sleep(1);
+        
+        //vel_1 += acc_1;
+        //vel_2 += acc_2;
         p.th1 += vel_1;
         p.th2 += vel_2;
         p.th1 = (fmod(p.th1, 2*PI));
         p.th2 = (fmod(p.th2, 2*PI));
-
 
         if (abs(p.th1) > 2*PI) {
             printf("ESCO DALL'ANGOLO\n");
@@ -252,11 +265,20 @@ ptask pend()
             p.th2 = p.th2 - ((p.th2 >= 0 ) ? 1 : -1 )* 2*PI;
         } 
 
+        start_writer();
+        shared_mem.x1y1[index - 1].x = shared_mem.x0y0[index - 1].x + p.l1 * sin(p.th1);
+        shared_mem.x1y1[index - 1].y = shared_mem.x0y0[index - 1].y + p.l1 * cos(p.th1);
+        shared_mem.x2y2[index - 1].x = shared_mem.x1y1[index - 1].x + p.l2 * sin(p.th2);
+        shared_mem.x2y2[index - 1].y = shared_mem.x1y1[index - 1].y + p.l2 * cos(p.th2);
+        end_writer();
+
+
         printf("angle1 after for pend %d: %lf\n", index - 1, p.th1);
         printf("angle2 after for pend %d: %lf\n", index - 1, p.th2);
 
 
         printf("Count: %d\n", count);
+        //sleep(1);
 
         ptask_wait_for_period();
     }
@@ -282,12 +304,14 @@ void manager()
 
     // Create pendulum tasks
     params = init_param(PRIO_P, PER_P);
-    for (i = 0; i < MAX_P; ++i) {
-        pid_p = ptask_create_param(pend, &params);
-        start_writer();
-        shared_mem.pid[i + 1] = pid_p;
-        // printf("shared_mem.pid[%d] = %d\n", i+1, shared_mem.pid[i+1]);
-        end_writer();
+    for (i = 0; i < MAX_P; i++) {
+        if (check_pendulum[i] != 0) {
+            pid_p = ptask_create_param(pend, &params);
+            start_writer();
+            shared_mem.pid[i + 1] = pid_p;
+            printf("PID_PENDOLO %d: %d\n", i+1, pid_p);
+            end_writer();
+        }
     }
 
 }
