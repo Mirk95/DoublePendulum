@@ -15,9 +15,10 @@
 #define MAX_P       10              // Max number of pendulums
 #define GRAVITY     9.81            // Gravitational constant
 #define PI          3.14159         // Pi greco
-#define PER_G       35              // Period graphic task
+#define TLEN        25              // Trajectory length
+#define PER_G       50              // Period graphic task
 #define PRIO_G      20              // Priority graphic task
-#define PER_P       90              // Period pendulum task
+#define PER_P       110             // Period pendulum task
 #define PRIO_P      10              // Priority pendulum task
 
 
@@ -29,6 +30,13 @@
 struct point_t {
     double      x;              // X position
     double      y;              // Y position
+};
+
+/* Structure that represents circular buffer for trajectory */
+struct cbuf_t {
+    int         top;            // Index of the current element
+    double      x[TLEN];        // Array of x coordinates
+    double      y[TLEN];        // Array of y coordinates
 };
 
 /* Structure that represents N double pendulums */
@@ -43,15 +51,16 @@ struct pendulum_t {
     struct point_t  x0y0;           // Initial point pendulum
 };
 
-
 /* Shared memory structure definitions */
 struct mem_t {
-    int         end;                    // Exit variable: no more tasks
-    int         pid[MAX_P + 1];         // Array with tasks' indexes
+    int         end;                // Exit variable: no more tasks
+    int         pid[MAX_P + 1];     // Array with tasks' indexes
     
-    struct point_t x0y0[MAX_P];         // Position point (x0,y0) -> zero point
-    struct point_t x1y1[MAX_P];         // Position point (x1,y1) -> first mass
-    struct point_t x2y2[MAX_P];         // Position point (x2,y2) -> second mass
+    struct point_t x0y0[MAX_P];     // Position point (x0,y0) -> zero point
+    struct point_t x1y1[MAX_P];     // Position point (x1,y1) -> first mass
+    struct point_t x2y2[MAX_P];     // Position point (x2,y2) -> second mass
+
+    struct cbuf_t trail[MAX_P];     // Array for trajectory pendulums
 
     int     nr;                     // Number of active readers
     int     nbr;                    // Number of blocked readers
@@ -64,6 +73,7 @@ struct mem_t {
 
 /* Shared memory structure */
 struct mem_t shared_mem;
+
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
@@ -92,6 +102,12 @@ double compute_acceleration1(struct pendulum_t p, double v1, double v2);
 
 /* Computation acceleration second pendulum */
 double compute_acceleration2(struct pendulum_t p, double v1, double v2);
+
+/* Retrieve parameters pendulum i */
+void retrieve_p(struct pendulum_t *p, int i);
+
+/* Update positions points pendulum i*/
+void update_positions(struct pendulum_t p, int i);
 
 /* Initialization of task's parameters */
 tpars init_param(int priority, int period);

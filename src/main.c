@@ -6,22 +6,29 @@
 #include "ptask.h"
 #include "main.h"
 #include "graphics.h"
-#include "mylib.h"
 
 int             k = 0;                  // Character for keyboard input
 int             num_pends = 0;          // Number of pendulums in file
-int             check_pendulum[MAX_P];  // Array for checking presence pendulums
 
-struct pendulum_t np[MAX_P];            // Struct MAX_P double pendulums
+struct pendulum_t read_p[MAX_P];        // Struct MAX_P double pendulums in file
+struct pendulum_t inborder_p[MAX_P];    // Struct MAX_P correct double pendulums
 
 
-/* Initialization array check_pendulum */
-void init_check_pendulum()
+/* Initialization pendulums array inborder_p */
+void init_pendulums()
 {
     int i = 0;
 
     for (i = 0; i < MAX_P; ++i) {
-        check_pendulum[i] = 0;
+        inborder_p[i].id = -1;
+        inborder_p[i].l1 = -1;
+        inborder_p[i].l2 = -1;
+        inborder_p[i].m1 = -1;
+        inborder_p[i].m2 = -1;
+        inborder_p[i].th1 = -1;
+        inborder_p[i].th2 = -1;
+        inborder_p[i].x0y0.x = -1;
+        inborder_p[i].x0y0.y = -1;
     }
 }
 
@@ -29,19 +36,18 @@ void init_check_pendulum()
 /* Transformation from degrees to radians of pendulum i */
 void degree_to_radians(int i)
 {
-    np[i].th1 = (np[i].th1 * PI) / 180;
-    np[i].th2 = (np[i].th2 * PI) / 180;
+    read_p[i].th1 = (read_p[i].th1 * PI) / 180;
+    read_p[i].th2 = (read_p[i].th2 * PI) / 180;
 }
 
 
 /* Reading parameters' file */
 int read_file(FILE *f)
 {
-    int i = 0;
-    int val = 0;
+    int num_p = 0;          // Number of pendulums read
+    int val = 0;            // Return value fscanf
 
     fscanf(f, "N = %d", &num_pends);
-    printf("Valore di N: %d\n", num_pends);
     if (num_pends > MAX_P) {
         return -1;
     }
@@ -49,17 +55,17 @@ int read_file(FILE *f)
     while(val != EOF) {
         val = fscanf(f, 
             "%d x0=%lf y0=%lf l1=%lf l2=%lf m1=%lf m2=%lf th1=%lf th2=%lf", 
-            &np[i].id, &np[i].x0y0.x, &np[i].x0y0.y, &np[i].l1, &np[i].l2, 
-            &np[i].m1, &np[i].m2, &np[i].th1, &np[i].th2);
+            &read_p[num_p].id, &read_p[num_p].x0y0.x, &read_p[num_p].x0y0.y, 
+            &read_p[num_p].l1, &read_p[num_p].l2, &read_p[num_p].m1, 
+            &read_p[num_p].m2, &read_p[num_p].th1, &read_p[num_p].th2);
 
         if (val != EOF) {
-            //check_pendulum[i] = 1;
-            degree_to_radians(i);
-            i++;
+            degree_to_radians(num_p);
+            num_p++;
         }
     }
 
-    return i;
+    return num_p;
 }
 
 
@@ -85,42 +91,34 @@ int check_read(int return_value)
 /* Checking pedulum lengths and borders gui */
 void check_border()
 {
-    int radius = 0;
-    int j = 0;
+    int radius = 0;         // length first rod + second rod
+    int i, j = 0;           // Variables for structs double pendulums
 
-    for (int i = 0; i < MAX_P; i++) {
-        
-        radius = np[i].l1 + np[i].l2;
-        if ((np[i].x0y0.x - radius) >= PAD && 
-            (np[i].x0y0.y - radius) >= PAD) {
-            // Pendulum exits from left border or from top border
-            check_pendulum[j] = 1;
-            printf("Pendulum %d not shown because out of borders!\n", i+1);
-        }
-        
-        if ((np[i].x0y0.x + radius) <= (XWIN - PAD) && 
-            (np[i].x0y0.y + radius) <= (YWIN - PAD) && check_pendulum[j] == 1) {
-            // Pendulum exits from right border or from bottom border
-            check_pendulum[j] = 1;
-            printf("Pendulum %d not shown because out of borders!\n", i+1);
+    for (i = 0; i < MAX_P; i++) {
+        radius = read_p[i].l1 + read_p[i].l2;
+
+        // Check conditions inside borders gui:
+        if ((read_p[i].x0y0.x - radius) >= PAD && 
+            (read_p[i].x0y0.y - radius) >= PAD && 
+            (read_p[i].x0y0.x + radius) <= (XWIN - PAD) && 
+            (read_p[i].x0y0.y + radius) <= (YWIN - PAD))
+        {
+            inborder_p[j] = read_p[i];
             j++;
         }
-        else
-        {
-            check_pendulum[j] = 0;
-        }
-        
     }
 }
 
 int main(void)
 {
     int r_value = 0;        // Return value for read_file function
-    int i = 0;              // Variable for cycle  
+    // int i = 0;              // Variable for cycle 
+    int bool = 0;           // Variable for avoid pressing ENTER more times 
 
     init_allegro();
     init_gui();
-    init_check_pendulum();
+    init_pendulums();
+    
     ptask_init(SCHED_FIFO, GLOBAL, NO_PROTOCOL);
 
     FILE *fp = fopen(NAMEFILE, "r");
@@ -135,29 +133,29 @@ int main(void)
     }
 
     check_border();
-
     fclose(fp);
 
-    for (i = 0; i < MAX_P; ++i) {
-        if (check_pendulum[i] != 0) {
-            printf("ID: %i\n", np[i].id);
-            printf("x0: %lf\n", np[i].x0y0.x);
-            printf("y0: %lf\n", np[i].x0y0.y);
-            printf("l1: %lf\n", np[i].l1);
-            printf("l2: %lf\n", np[i].l2);
-            printf("m1: %lf\n", np[i].m1);
-            printf("m2: %lf\n", np[i].m2);
-            printf("th1: %lf\n", np[i].th1);
-            printf("th2: %lf\n", np[i].th2);
-        }
-    }
+    // for (i = 0; i < MAX_P; ++i) {
+    //     if (inborder_p[i].id != -1) {
+    //         printf("ID: %i\n", inborder_p[i].id);
+    //         printf("x0: %lf\n", inborder_p[i].x0y0.x);
+    //         printf("y0: %lf\n", inborder_p[i].x0y0.y);
+    //         printf("l1: %lf\n", inborder_p[i].l1);
+    //         printf("l2: %lf\n", inborder_p[i].l2);
+    //         printf("m1: %lf\n", inborder_p[i].m1);
+    //         printf("m2: %lf\n", inborder_p[i].m2);
+    //         printf("th1: %lf\n", inborder_p[i].th1);
+    //         printf("th2: %lf\n", inborder_p[i].th2);
+    //     }
+    // }
 
     do {
         if (keypressed()) {
             k = readkey() >> 8;
             // If press ENTER, pendulums start.
-            if (k == KEY_ENTER) {
+            if (k == KEY_ENTER && bool == 0) {
                 manager();     // Shared memory initialization
+                bool = 1;
             }
         }
     } while (k != KEY_ESC);

@@ -3,21 +3,17 @@
 
 #include "mylib.h"
 
+struct pendulum_t inborder_p[MAX_P];    // Struct MAX_P correct double pendulums
+
+
 //------------------------------------------------------------------------------
 // FUNCTIONS
 //------------------------------------------------------------------------------
 
-int             check_pendulum[MAX_P];  // Array for checking presence pendulums
-struct pendulum_t np[MAX_P];            // Struct MAX_P double pendulums
+/* Initialization pendulums array inborder_p */
+void init_pendulums();
 
-/* 
- *  Initialization array check_pendulum:
- *  check_pendulum[i] = 0;  -> Pendulum i is not present
- *  check_pendulum[i] = 1;  -> Pendulum i is present
- */
-void init_check_pendulum();
-
-/* Transformation from degrees to radians */
+/* Transformation from degrees to radians of pendulum i */
 void degree_to_radians(int i);
 
 /* Reading parameter's file */

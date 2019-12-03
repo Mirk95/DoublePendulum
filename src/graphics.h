@@ -23,10 +23,12 @@ void init_gui();
 /* Initial pendulums graphic interface after ENTER pressing */
 void init_pendulums_gui();
 
-
 /* Retrieve Shared Memory parameters */
 void retrieve_sm(struct point_t *g_x0y0, struct point_t *g_x1y1, 
-                struct point_t *g_x2y2);
+                struct point_t *g_x2y2, struct cbuf_t *t);
+
+/* Draw past values of trajectory pendulum i */
+void draw_trail(int color, struct cbuf_t t);
 
 /* Graphic task */
 ptask graphic();
