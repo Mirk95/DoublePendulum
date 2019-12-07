@@ -12,13 +12,13 @@
 #define YWIN        800             // Window Y resolution
 #define PAD         20              // Padding for initial gui
 #define MSG_LEN     50              // Max message length 
-#define MAX_P       10              // Max number of pendulums
-#define GRAVITY     9.81            // Gravitational constant
+#define MAX_P       7               // Max number of pendulums
+#define GRAVITY     0.1             // Gravitational constant
 #define PI          3.14159         // Pi greco
-#define TLEN        25              // Trajectory length
+#define TLEN        50              // Trajectory length
 #define PER_G       50              // Period graphic task
 #define PRIO_G      20              // Priority graphic task
-#define PER_P       110             // Period pendulum task
+#define PER_P       20             // Period pendulum task
 #define PRIO_P      10              // Priority pendulum task
 
 
@@ -59,7 +59,6 @@ struct mem_t {
     struct point_t x0y0[MAX_P];     // Position point (x0,y0) -> zero point
     struct point_t x1y1[MAX_P];     // Position point (x1,y1) -> first mass
     struct point_t x2y2[MAX_P];     // Position point (x2,y2) -> second mass
-
     struct cbuf_t trail[MAX_P];     // Array for trajectory pendulums
 
     int     nr;                     // Number of active readers
@@ -111,6 +110,9 @@ void update_positions(struct pendulum_t p, int i);
 
 /* Initialization of task's parameters */
 tpars init_param(int priority, int period);
+
+/* Check Deadline Miss */
+void check_deadline_miss();
 
 /* Pendulum task */
 ptask pend();

@@ -186,25 +186,28 @@ void retrieve_p(struct pendulum_t *p, int i)
 void update_positions(struct pendulum_t p, int i)
 {
     int k = 0;
-    double x2 = 0;
-    double y2 = 0;
+    // double x2 = 0;
+    // double y2 = 0;
 
     start_reader();
     k = shared_mem.trail[i - 1].top;
-    x2 = shared_mem.x2y2[i - 1].x;
-    y2 = shared_mem.x2y2[i - 1].y;
+    // x2 = shared_mem.x2y2[i - 1].x;
+    // y2 = shared_mem.x2y2[i - 1].y;
+    // printf("K pend %d: %d\n", i - 1, k);
+    // printf("X2 pend %d: %lf\n", i - 1, x2);
+    // printf("Y2 pend %d: %lf\n", i - 1, y2);
     end_reader();
 
-    k = (k + 1) % TLEN;
-
     start_writer();
+    k = (k + 1) % TLEN;
+    // printf("New K pend %d: %d\n", i - 1, k);
     shared_mem.x1y1[i - 1].x = p.x0y0.x + p.l1 * sin(p.th1);
     shared_mem.x1y1[i - 1].y = p.x0y0.y + p.l1 * cos(p.th1);
     shared_mem.x2y2[i - 1].x = p.x0y0.x + p.l1 * sin(p.th1) + p.l2 * sin(p.th2);
     shared_mem.x2y2[i - 1].y = p.x0y0.y + p.l1 * cos(p.th1) + p.l2 * cos(p.th2);
-    shared_mem.trail[i - 1].x[k] = x2;
-    shared_mem.trail[i - 1].y[k] = y2;
-    shared_mem.trail[i - 1].top = k + 1;
+    shared_mem.trail[i - 1].x[k] = shared_mem.x2y2[i - 1].x;
+    shared_mem.trail[i - 1].y[k] = shared_mem.x2y2[i - 1].y;
+    shared_mem.trail[i - 1].top = k;
     end_writer();
 }
 
@@ -223,13 +226,19 @@ tpars init_param(int priority, int period)
     return params;
 }
 
+/* Check Deadline Miss */
+void check_deadline_miss()
+{
+    if (ptask_deadline_miss()) {
+        printf("Pendulum %d has missed deadline!\n", ptask_get_index());
+    }
+}
 
 /* Pendulum task */
 ptask pend()
 {
     int end = 0;
     int index = 0;
-    int count = 0;
     double vel_1 = 0;
     double vel_2 = 0;
     double acc_1 = 0;
@@ -247,7 +256,6 @@ ptask pend()
     end_writer();
 
     update_positions(actual_p, index);
-    count++;
 
     // printf("p.id pendolo %d: %d\n", (index - 1), actual_p.id);
     // printf("p.l1 pendolo %d: %lf\n", (index - 1), actual_p.l1);
@@ -262,13 +270,13 @@ ptask pend()
         // printf("acc_1 for pend %d: %lf\n", index - 1, acc_1);
         // printf("acc_2 for pend %d: %lf\n", index -1, acc_2);
 
-        if(abs(acc_1) > 10 || abs(acc_2) > 10) {
-            // printf("Accelerazione calmierata\n");
-            acc_1 = acc_1 / 100;
-            acc_2 = acc_2 / 100;
-            vel_1 = vel_1 / 100;
-            vel_2 = vel_2 / 100;
-        }
+        // if(abs(acc_1) > 10 || abs(acc_2) > 10) {
+        //     // printf("Accelerazione calmierata\n");
+        //     acc_1 = acc_1 / 100;
+        //     acc_2 = acc_2 / 100;
+        //     vel_1 = vel_1 / 100;
+        //     vel_2 = vel_2 / 100;
+        // }
 
         if (abs(vel_1) < 30 || abs(vel_2) < 30) {
             // printf("Ciao\n");
@@ -300,11 +308,10 @@ ptask pend()
         } 
 
         update_positions(actual_p, index);
-        count++;
 
         // printf("angle1 after for pend %d: %lf\n", index - 1, actual_p.th1);
         // printf("angle2 after for pend %d: %lf\n", index - 1, actual_p.th2);
-        printf("Contatore in task pendulum: %d\n", count);
+        check_deadline_miss();
         ptask_wait_for_period();
     }
 }

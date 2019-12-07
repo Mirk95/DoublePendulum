@@ -25,4 +25,7 @@ int check_read(int return_value);
 /* Checking pedulum lengths and borders gui */
 void check_border();
 
+/* Set exit variable to 1 and waits for join */
+void check_join();
+
 #endif

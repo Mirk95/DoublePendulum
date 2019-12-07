@@ -109,6 +109,31 @@ void check_border()
     }
 }
 
+/* Set exit variable to 1 and waits for join */
+void check_join()
+{
+    int i;
+    int local_pid[num_pends + 1];
+
+    start_writer();
+    shared_mem.end = 1;
+    end_writer();
+
+    // Retrieve all pid from shared memory:
+    for (i = 0; i < MAX_P + 1; i++) {
+        start_reader();
+        local_pid[i] = shared_mem.pid[i];
+        end_reader();
+    }
+
+    // Wait all the tasks to end:
+    for (i = 0; i < MAX_P + 1; i++) {
+        if (local_pid[i] != -1) {
+            pthread_join(ptask_get_threadid(local_pid[i]), 0);
+        }
+    }
+}
+
 int main(void)
 {
     int r_value = 0;        // Return value for read_file function
@@ -159,6 +184,10 @@ int main(void)
             }
         }
     } while (k != KEY_ESC);
+
+    if (bool == 1) {
+        check_join();
+    }
 
     allegro_exit();
     return EXIT_SUCCESS;

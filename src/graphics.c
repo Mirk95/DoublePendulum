@@ -37,6 +37,7 @@ void init_pendulums_gui()
 {
     clear_to_color(screen, BKG);
     rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
+    
 }
 
 /* Retrieve Shared Memory parameters */
@@ -67,17 +68,22 @@ void retrieve_sm(struct point_t *g_x0y0, struct point_t *g_x1y1,
 void draw_trail(int color, struct cbuf_t t)
 {
     int j, k = 0;
-    int count = 0;
     double x, y = 0;
 
     for (j = 0; j < TLEN; j++) {
         if (t.top != -1) {
+            // printf("t.top = %d\n", t.top);
             k = (t.top + TLEN - j) % TLEN;
             x = t.x[k];
             y = t.y[k];
-            circlefill(screen, x, y, 3, color + 1);
-            printf("t.x[%d] = %lf\n", k, x);
-            printf("t.y[%d] = %lf\n", k, y);
+            if (x == -1 && y == -1) {
+                circlefill(screen, x, y, 1, BKG);
+            }
+            else {
+                // printf("t.x[%d] = %lf\n", k, x);
+                // printf("t.y[%d] = %lf\n", k, y);
+                circlefill(screen, x, y, 1, color + 9);
+            }
             // circlefill(screen, x, y, 2, i + 1);
             // circlefill(screen, x + 10, y + 10, 2, 15);
 
@@ -125,15 +131,18 @@ ptask graphic()
                 textout_centre_ex(screen, font, text, graph_x0y0[i].x, 
                                 graph_x0y0[i].y - 20, WHITE, BKG);
                 line(screen, graph_x1y1[i].x, graph_x1y1[i].y, 
-                            graph_x0y0[i].x, graph_x0y0[i].y, i+1);
+                            graph_x0y0[i].x, graph_x0y0[i].y, i+9);
                 circlefill(screen, graph_x1y1[i].x, graph_x1y1[i].y, 5, i+1);
                 line(screen, graph_x2y2[i].x, graph_x2y2[i].y, 
-                            graph_x1y1[i].x, graph_x1y1[i].y, i+1);
+                            graph_x1y1[i].x, graph_x1y1[i].y, i+9);
                 circlefill(screen, graph_x2y2[i].x, graph_x2y2[i].y, 5, i+1);
                 draw_trail(i, trajectory[i]);
             }
         }
 
+        if (ptask_deadline_miss()) {
+            printf("Graphic task has missed deadline!\n");
+        }
         ptask_wait_for_period();
     }
 }
