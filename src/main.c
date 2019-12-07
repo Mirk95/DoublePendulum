@@ -19,7 +19,7 @@ void init_pendulums()
 {
     int i = 0;
 
-    for (i = 0; i < MAX_P; ++i) {
+    for (i = 0; i < MAX_P; i++) {
         inborder_p[i].id = -1;
         inborder_p[i].l1 = -1;
         inborder_p[i].l2 = -1;
@@ -33,11 +33,11 @@ void init_pendulums()
 }
 
 
-/* Transformation from degrees to radians of pendulum i */
-void degree_to_radians(int i)
+/* Transformation from degrees to radians of pendulums' angles */
+void degree_to_radians(int index)
 {
-    read_p[i].th1 = (read_p[i].th1 * PI) / 180;
-    read_p[i].th2 = (read_p[i].th2 * PI) / 180;
+    read_p[index].th1 = (read_p[index].th1 * PI) / 180;
+    read_p[index].th2 = (read_p[index].th2 * PI) / 180;
 }
 
 
@@ -69,7 +69,7 @@ int read_file(FILE *f)
 }
 
 
-/* Checking number pendulums in file */
+/* Checking number of pendulums in file */
 int check_read(int return_value)
 {
     if (return_value == -1) {
@@ -106,10 +106,15 @@ void check_border()
             inborder_p[j] = read_p[i];
             j++;
         }
+        else {
+            if (i < num_pends) {
+                printf("Pendulum %d not shown because out of borders!\n", i);
+            }
+        }
     }
 }
 
-/* Set exit variable to 1 and waits for join */
+/* Setting exit variable to 1 and waiting for join */
 void check_join()
 {
     int i;
@@ -121,9 +126,12 @@ void check_join()
 
     // Retrieve all pid from shared memory:
     for (i = 0; i < MAX_P + 1; i++) {
-        start_reader();
-        local_pid[i] = shared_mem.pid[i];
-        end_reader();
+        if (inborder_p[i].id != -1) {
+            start_reader();
+            local_pid[i] = shared_mem.pid[i];
+            printf("local pid[%d] = %d\n", i, local_pid[i]);
+            end_reader();
+        }
     }
 
     // Wait all the tasks to end:
@@ -137,8 +145,7 @@ void check_join()
 int main(void)
 {
     int r_value = 0;        // Return value for read_file function
-    // int i = 0;              // Variable for cycle 
-    int bool = 0;           // Variable for avoid pressing ENTER more times 
+    int press = 0;          // Variable for avoid pressing ENTER more times 
 
     init_allegro();
     init_gui();
@@ -160,35 +167,18 @@ int main(void)
     check_border();
     fclose(fp);
 
-    // for (i = 0; i < MAX_P; ++i) {
-    //     if (inborder_p[i].id != -1) {
-    //         printf("ID: %i\n", inborder_p[i].id);
-    //         printf("x0: %lf\n", inborder_p[i].x0y0.x);
-    //         printf("y0: %lf\n", inborder_p[i].x0y0.y);
-    //         printf("l1: %lf\n", inborder_p[i].l1);
-    //         printf("l2: %lf\n", inborder_p[i].l2);
-    //         printf("m1: %lf\n", inborder_p[i].m1);
-    //         printf("m2: %lf\n", inborder_p[i].m2);
-    //         printf("th1: %lf\n", inborder_p[i].th1);
-    //         printf("th2: %lf\n", inborder_p[i].th2);
-    //     }
-    // }
-
     do {
         if (keypressed()) {
             k = readkey() >> 8;
-            // If press ENTER, pendulums start.
-            if (k == KEY_ENTER && bool == 0) {
-                manager();     // Shared memory initialization
-                bool = 1;
+            // If press ENTER, pendulums start:
+            if (k == KEY_ENTER && press == 0) {
+                manager();
+                press = 1;
             }
         }
     } while (k != KEY_ESC);
 
-    if (bool == 1) {
-        check_join();
-    }
-
+    if (press != 0) { check_join(); }
     allegro_exit();
     return EXIT_SUCCESS;
 }

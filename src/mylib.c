@@ -138,8 +138,8 @@ double compute_acceleration1(struct pendulum_t p, double v1, double v2)
     double den = 0;             // Formula denominator
     double res = 0;             // Formula result
 
-    num1 = - GRAVITY * (2 * p.m1 + p.m2) * sin(p.th1);
-    num2 = - p.m2 * GRAVITY * sin(p.th1 - 2 * p.th2);
+    num1 = - TSCALE * (2 * p.m1 + p.m2) * sin(p.th1);
+    num2 = - p.m2 * TSCALE * sin(p.th1 - 2 * p.th2);
     num3 = -2 * sin(p.th1 - p.th2) * p.m2;
     num4 = v2 * v2 * p.l2 + v1 * v1 * p.l1 * cos(p.th1 - p.th2);
     den = p.l1 * (2 * p.m1 + p.m2 - p.m2 * cos(2 *p.th1 - 2 * p.th2));
@@ -160,7 +160,7 @@ double compute_acceleration2(struct pendulum_t p, double v1, double v2)
 
     num1 = 2 * sin(p.th1 - p.th2);
     num2 = (v1 * v1 * p.l1 * (p.m1 + p.m2));
-    num3 = GRAVITY * (p.m1 + p.m2) * cos(p.th1);
+    num3 = TSCALE * (p.m1 + p.m2) * cos(p.th1);
     num4 = v2 * v2 * p.l2 * p.m2 * cos(p.th1 - p.th2);
     den = p.l2 * (2 * p.m1 + p.m2 - p.m2 * cos(2 * p.th1 - 2 * p.th2));
     res = (num1 * (num2 + num3 + num4)) / den;

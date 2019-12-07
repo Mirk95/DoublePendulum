@@ -13,12 +13,12 @@
 #define PAD         20              // Padding for initial gui
 #define MSG_LEN     50              // Max message length 
 #define MAX_P       7               // Max number of pendulums
-#define GRAVITY     0.1             // Gravitational constant
+#define TSCALE      0.1             // Time scale factor
 #define PI          3.14159         // Pi greco
 #define TLEN        50              // Trajectory length
 #define PER_G       50              // Period graphic task
 #define PRIO_G      20              // Priority graphic task
-#define PER_P       20             // Period pendulum task
+#define PER_P       20              // Period pendulum task
 #define PRIO_P      10              // Priority pendulum task
 
 

@@ -37,7 +37,7 @@ void init_pendulums_gui()
 {
     clear_to_color(screen, BKG);
     rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
-    
+    //rect(screen, 2 * PAD, 2 * PAD, XWIN - 2 * PAD, YWIN - 2 * PAD, WHITE);
 }
 
 /* Retrieve Shared Memory parameters */
