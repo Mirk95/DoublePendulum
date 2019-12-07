@@ -102,17 +102,20 @@ double compute_acceleration1(struct pendulum_t p, double v1, double v2);
 /* Computation acceleration second pendulum */
 double compute_acceleration2(struct pendulum_t p, double v1, double v2);
 
-/* Retrieve parameters pendulum i */
-void retrieve_p(struct pendulum_t *p, int i);
+/* Retrieve parameters pendulum index */
+void retrieve_p(struct pendulum_t *p, int index);
 
-/* Update positions points pendulum i*/
-void update_positions(struct pendulum_t p, int i);
+/* Update initial points x0,y0 of pendulum index */
+void write_x0y0(struct pendulum_t p, int index);
+
+/* Update positions points and trajectory pendulum index */
+void update_positions(struct pendulum_t p, int index);
 
 /* Initialization of task's parameters */
 tpars init_param(int priority, int period);
 
-/* Check Deadline Miss */
-void check_deadline_miss();
+/* Check deadline miss pendulum task */
+void check_deadline_miss_p();
 
 /* Pendulum task */
 ptask pend();

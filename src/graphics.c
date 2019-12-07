@@ -19,7 +19,7 @@ void init_allegro()
     install_keyboard();
 }
 
-/* Initial graphic interface */
+/* Initialization graphic interface */
 void init_gui()
 {
     rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
@@ -37,7 +37,7 @@ void init_pendulums_gui()
 {
     clear_to_color(screen, BKG);
     rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
-    //rect(screen, 2 * PAD, 2 * PAD, XWIN - 2 * PAD, YWIN - 2 * PAD, WHITE);
+    rect(screen, 2 * PAD, 2 * PAD, XWIN - 2 * PAD, YWIN - 2 * PAD, WHITE);
 }
 
 /* Retrieve Shared Memory parameters */
@@ -64,7 +64,7 @@ void retrieve_sm(struct point_t *g_x0y0, struct point_t *g_x1y1,
     }
 }
 
-/* Draw past values of trajectory pendulum i */
+/* Draw past values of trajectory pendulum */
 void draw_trail(int color, struct cbuf_t t)
 {
     int j, k = 0;
@@ -72,7 +72,6 @@ void draw_trail(int color, struct cbuf_t t)
 
     for (j = 0; j < TLEN; j++) {
         if (t.top != -1) {
-            // printf("t.top = %d\n", t.top);
             k = (t.top + TLEN - j) % TLEN;
             x = t.x[k];
             y = t.y[k];
@@ -80,24 +79,17 @@ void draw_trail(int color, struct cbuf_t t)
                 circlefill(screen, x, y, 1, BKG);
             }
             else {
-                // printf("t.x[%d] = %lf\n", k, x);
-                // printf("t.y[%d] = %lf\n", k, y);
                 circlefill(screen, x, y, 1, color + 9);
             }
-            // circlefill(screen, x, y, 2, i + 1);
-            // circlefill(screen, x + 10, y + 10, 2, 15);
-
-            // }
-            // else {
-            //     x_prev = t.x[k - 1];
-            //     y_prev = t.y[k - 1];
-            //     putpixel(screen, x_prev, y_prev, i + 1);
-            //     x = t.x[k];
-            //     y = t.y[k];
-            //     putpixel(screen, x, y, i + 1);
-            //     line(screen, x, y, x_prev, y_prev, i + 1);
-            // }
         }
+    }
+}
+
+/* Check deadline miss graphic task */
+void check_deadline_miss_g()
+{
+    if (ptask_deadline_miss()) {
+            printf("Graphic task has missed deadline!\n");
     }
 }
 
@@ -119,13 +111,6 @@ ptask graphic()
 
         for (i = 0; i < MAX_P; i++) {
             if (inborder_p[i].id != -1) {
-                // printf("check_pendulum[%d] = %d\n", i, check_pendulum[i]);
-                // printf("graph_x0y0 x[%d]: %lf\n", i, graph_x0y0[i].x);
-                // printf("graph_x0y0 y[%d]: %lf\n", i, graph_x0y0[i].y);
-                // printf("graph_x1y1 x[%d]: %lf\n", i, graph_x1y1[i].x);
-                // printf("graph_x1y1 y[%d]: %lf\n", i, graph_x1y1[i].y);
-                // printf("graph_x2y2 x[%d]: %lf\n", i, graph_x2y2[i].x);
-                // printf("graph_x2y2 y[%d]: %lf\n", i, graph_x2y2[i].y);
                 circlefill(screen, graph_x0y0[i].x, graph_x0y0[i].y, 5, i+1);
                 sprintf(text, "%d", inborder_p[i].id);
                 textout_centre_ex(screen, font, text, graph_x0y0[i].x, 
@@ -140,9 +125,7 @@ ptask graphic()
             }
         }
 
-        if (ptask_deadline_miss()) {
-            printf("Graphic task has missed deadline!\n");
-        }
+        check_deadline_miss_g();
         ptask_wait_for_period();
     }
 }

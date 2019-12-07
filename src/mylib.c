@@ -168,46 +168,49 @@ double compute_acceleration2(struct pendulum_t p, double v1, double v2)
     return res;
 }
 
-/* Retrieve parameters pendulum i */
-void retrieve_p(struct pendulum_t *p, int i)
+/* Retrieve parameters pendulum index */
+void retrieve_p(struct pendulum_t *p, int index)
 {
-    p->id = inborder_p[i - 1].id;
-    p->l1 = inborder_p[i - 1].l1;
-    p->l2 = inborder_p[i - 1].l2;
-    p->m1 = inborder_p[i - 1].m1;
-    p->m2 = inborder_p[i - 1].m2;
-    p->th1 = inborder_p[i - 1].th1;
-    p->th2 = inborder_p[i - 1].th2;
-    p->x0y0.x = inborder_p[i - 1].x0y0.x;
-    p->x0y0.y = inborder_p[i - 1].x0y0.y;
+    p->id = inborder_p[index - 1].id;
+    p->l1 = inborder_p[index - 1].l1;
+    p->l2 = inborder_p[index - 1].l2;
+    p->m1 = inborder_p[index - 1].m1;
+    p->m2 = inborder_p[index - 1].m2;
+    p->th1 = inborder_p[index - 1].th1;
+    p->th2 = inborder_p[index - 1].th2;
+    p->x0y0.x = inborder_p[index - 1].x0y0.x;
+    p->x0y0.y = inborder_p[index - 1].x0y0.y;
 }
 
-/* Update positions points and trajectory pendulum i*/
-void update_positions(struct pendulum_t p, int i)
+/* Update initial points x0,y0 of pendulum index */
+void write_x0y0(struct pendulum_t p, int index)
 {
-    int k = 0;
-    // double x2 = 0;
-    // double y2 = 0;
+    start_writer();
+    shared_mem.x0y0[index - 1].x = p.x0y0.x;
+    shared_mem.x0y0[index - 1].y = p.x0y0.y;
+    end_writer();
+}
+
+/* Update positions points and trajectory pendulum index */
+void update_positions(struct pendulum_t p, int index)
+{
+    int k = 0;              // Variable for index circular array
 
     start_reader();
-    k = shared_mem.trail[i - 1].top;
-    // x2 = shared_mem.x2y2[i - 1].x;
-    // y2 = shared_mem.x2y2[i - 1].y;
-    // printf("K pend %d: %d\n", i - 1, k);
-    // printf("X2 pend %d: %lf\n", i - 1, x2);
-    // printf("Y2 pend %d: %lf\n", i - 1, y2);
+    k = shared_mem.trail[index - 1].top;
     end_reader();
 
     start_writer();
     k = (k + 1) % TLEN;
-    // printf("New K pend %d: %d\n", i - 1, k);
-    shared_mem.x1y1[i - 1].x = p.x0y0.x + p.l1 * sin(p.th1);
-    shared_mem.x1y1[i - 1].y = p.x0y0.y + p.l1 * cos(p.th1);
-    shared_mem.x2y2[i - 1].x = p.x0y0.x + p.l1 * sin(p.th1) + p.l2 * sin(p.th2);
-    shared_mem.x2y2[i - 1].y = p.x0y0.y + p.l1 * cos(p.th1) + p.l2 * cos(p.th2);
-    shared_mem.trail[i - 1].x[k] = shared_mem.x2y2[i - 1].x;
-    shared_mem.trail[i - 1].y[k] = shared_mem.x2y2[i - 1].y;
-    shared_mem.trail[i - 1].top = k;
+    shared_mem.x1y1[index - 1].x = p.x0y0.x + p.l1 * sin(p.th1);
+    shared_mem.x1y1[index - 1].y = p.x0y0.y + p.l1 * cos(p.th1);
+    shared_mem.x2y2[index - 1].x = p.x0y0.x + p.l1 * sin(p.th1) + 
+                                    p.l2 * sin(p.th2);
+    shared_mem.x2y2[index - 1].y = p.x0y0.y + p.l1 * cos(p.th1) + 
+                                    p.l2 * cos(p.th2);
+    shared_mem.trail[index - 1].x[k] = shared_mem.x2y2[index - 1].x;
+    shared_mem.trail[index - 1].y[k] = shared_mem.x2y2[index - 1].y;
+    shared_mem.trail[index - 1].top = k;
     end_writer();
 }
 
@@ -226,92 +229,52 @@ tpars init_param(int priority, int period)
     return params;
 }
 
-/* Check Deadline Miss */
-void check_deadline_miss()
+/* Check deadline miss pendulum task */
+void check_deadline_miss_p()
 {
     if (ptask_deadline_miss()) {
-        printf("Pendulum %d has missed deadline!\n", ptask_get_index());
+        printf("Pendulum %d has missed deadline!\n", ptask_get_index() - 1);
     }
 }
 
 /* Pendulum task */
 ptask pend()
 {
-    int end = 0;
-    int index = 0;
-    double vel_1 = 0;
-    double vel_2 = 0;
-    double acc_1 = 0;
-    double acc_2 = 0;
+    int end, index;
+    double vel_1, vel_2, acc_1, acc_2;
     struct pendulum_t actual_p;
 
     index = ptask_get_index();
-    // printf("Sono il pendolo con Index: %d\n", index);
-
     retrieve_p(&actual_p, index);
-
-    start_writer();
-    shared_mem.x0y0[index - 1].x = actual_p.x0y0.x;
-    shared_mem.x0y0[index - 1].y = actual_p.x0y0.y;
-    end_writer();
+    write_x0y0(actual_p, index);
 
     update_positions(actual_p, index);
 
-    // printf("p.id pendolo %d: %d\n", (index - 1), actual_p.id);
-    // printf("p.l1 pendolo %d: %lf\n", (index - 1), actual_p.l1);
-    // printf("p.l2 pendolo %d: %lf\n", (index - 1), actual_p.l2);
-    // printf("p.x0 pendolo %d: %lf\n", (index - 1), actual_p.x0y0.x);
-
     while (!end) {
         end = check_end();
-
         acc_1 = compute_acceleration1(actual_p, vel_1, vel_2);
         acc_2 = compute_acceleration2(actual_p, vel_1, vel_2);
-        // printf("acc_1 for pend %d: %lf\n", index - 1, acc_1);
-        // printf("acc_2 for pend %d: %lf\n", index -1, acc_2);
-
-        // if(abs(acc_1) > 10 || abs(acc_2) > 10) {
-        //     // printf("Accelerazione calmierata\n");
-        //     acc_1 = acc_1 / 100;
-        //     acc_2 = acc_2 / 100;
-        //     vel_1 = vel_1 / 100;
-        //     vel_2 = vel_2 / 100;
-        // }
 
         if (abs(vel_1) < 30 || abs(vel_2) < 30) {
-            // printf("Ciao\n");
             vel_1 += acc_1;
             vel_2 += acc_2;
         }
 
-
-        // printf("vel_1 for pend %d: %lf\n", (index - 1), vel_1);
-        // printf("vel_2 for pend %d: %lf\n", (index - 1), vel_2);
-        // printf("angle1 before for pend %d: %lf\n", (index - 1), actual_p.th1);
-        // printf("angle2 before for pend %d: %lf\n", (index - 1), actual_p.th2);
-        
-        //vel_1 += acc_1;
-        //vel_2 += acc_2;
         actual_p.th1 += vel_1;
         actual_p.th2 += vel_2;
         actual_p.th1 = (fmod(actual_p.th1, 2*PI));
         actual_p.th2 = (fmod(actual_p.th2, 2*PI));
 
         if (abs(actual_p.th1) > 2*PI) {
-            // printf("ESCO DALL'ANGOLO\n");
             actual_p.th1 -= ((actual_p.th1 >= 0 ) ? 1 : -1) * 2*PI;
         } 
 
         if (abs(actual_p.th2) > 2*PI) {
-            // printf("ESCO DALL'ANGOLO\n");
             actual_p.th2 -= ((actual_p.th2 >= 0 ) ? 1 : -1 )* 2*PI;
         } 
 
         update_positions(actual_p, index);
-
-        // printf("angle1 after for pend %d: %lf\n", index - 1, actual_p.th1);
-        // printf("angle2 after for pend %d: %lf\n", index - 1, actual_p.th2);
-        check_deadline_miss();
+        check_deadline_miss_p();
         ptask_wait_for_period();
     }
 }
@@ -320,8 +283,8 @@ ptask pend()
 /* Manager for the program */
 void manager()
 {
-    int pid_g, pid_p;               // Graphic task index
-    static tpars params;            // Parameters for graphic task
+    int pid_g, pid_p;               // Graphic task and pendulum tasks pids
+    static tpars params;            // Parameters for tasks
     int i = 0;                      // Variable for cycle
 
     // Initialization of the shared memory

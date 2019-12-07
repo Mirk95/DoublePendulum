@@ -98,10 +98,10 @@ void check_border()
         radius = read_p[i].l1 + read_p[i].l2;
 
         // Check conditions inside borders gui:
-        if ((read_p[i].x0y0.x - radius) >= PAD && 
-            (read_p[i].x0y0.y - radius) >= PAD && 
-            (read_p[i].x0y0.x + radius) <= (XWIN - PAD) && 
-            (read_p[i].x0y0.y + radius) <= (YWIN - PAD))
+        if ((read_p[i].x0y0.x - radius) >= 2 * PAD && 
+            (read_p[i].x0y0.y - radius) >= 2 * PAD && 
+            (read_p[i].x0y0.x + radius) <= (XWIN - 2 * PAD) && 
+            (read_p[i].x0y0.y + radius) <= (YWIN - 2 * PAD))
         {
             inborder_p[j] = read_p[i];
             j++;
@@ -126,12 +126,9 @@ void check_join()
 
     // Retrieve all pid from shared memory:
     for (i = 0; i < MAX_P + 1; i++) {
-        if (inborder_p[i].id != -1) {
-            start_reader();
-            local_pid[i] = shared_mem.pid[i];
-            printf("local pid[%d] = %d\n", i, local_pid[i]);
-            end_reader();
-        }
+        start_reader();
+        local_pid[i] = shared_mem.pid[i];
+        end_reader();
     }
 
     // Wait all the tasks to end:

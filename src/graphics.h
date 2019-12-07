@@ -17,7 +17,7 @@
 /* Initialization of Allegro libray */
 void init_allegro();
 
-/* Initial graphic interface */
+/* Initialization graphic interface */
 void init_gui();
 
 /* Initial pendulums graphic interface after ENTER pressing */
@@ -27,8 +27,11 @@ void init_pendulums_gui();
 void retrieve_sm(struct point_t *g_x0y0, struct point_t *g_x1y1, 
                 struct point_t *g_x2y2, struct cbuf_t *t);
 
-/* Draw past values of trajectory pendulum i */
+/* Draw past values of trajectory pendulum */
 void draw_trail(int color, struct cbuf_t t);
+
+/* Check deadline miss graphic task */
+void check_deadline_miss_g();
 
 /* Graphic task */
 ptask graphic();
