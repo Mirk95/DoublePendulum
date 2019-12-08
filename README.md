@@ -32,4 +32,5 @@ are:
 - **th1**: angle between the vertical and the first rod;
 - **th2**: angle between the vertical and the second rod;
 
-![](images/filename%20Double_Pendulum.png)
+![alt text](https://github.com/Mirk95/DoublePendulum/blob/master/images/
+Double_Pendulum.png)
