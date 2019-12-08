@@ -35,5 +35,3 @@ are:
 The following figure better explains the use of all the parameters described 
 above (from https://www.myphysicslab.com/pendulum/double-pendulum-en.html):<br/>
 ![](https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.png)
-
-
