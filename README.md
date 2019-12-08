@@ -39,7 +39,8 @@ In the file, these parameters must be written as in the following example:
 > 2 x0=640 y0=400 l1=50 l2=50 m1=60 m2=5 th1=45 th2=30 </br>
 
 The following figure better explains the use of all the parameters described 
-above (taken from https://www.myphysicslab.com/pendulum/double-pendulum-en.html):
+above (taken from 
+https://www.wired.com/story/fidget-spinners-the-serious-physics-behind-a-double-pendulum-spinner/):
 
 <p align="center">
   <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.jpg">
@@ -50,7 +51,7 @@ As reported on the [site](https://www.myphysicslab.com/pendulum/double-pendulum-
 the two formulas used for accelerations computation are the following:
 
 <p align="center">
-  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.png">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Formulas.png">
 </p>
 
 
