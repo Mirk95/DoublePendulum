@@ -5,7 +5,7 @@
 
 #include "ptask.h"
 #include "main.h"
-#include "graphics.h"
+#include "graphic.h"
 
 int             k = 0;                  // Character for keyboard input
 int             num_pends = 0;          // Number of pendulums in file

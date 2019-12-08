@@ -4,7 +4,7 @@
 
 #include "ptask.h"
 #include "mylib.h"
-#include "graphics.h"
+#include "graphic.h"
 #include "main.h"
 
 /* Initialization shared memory */

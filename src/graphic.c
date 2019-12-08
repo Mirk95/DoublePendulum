@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "ptask.h"
-#include "graphics.h"
+#include "graphic.h"
 #include "mylib.h"
 #include "main.h"
 
