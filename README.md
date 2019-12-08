@@ -1,9 +1,9 @@
 # Double Pendulums
-Project for **Real-Time Embedded Systems** course - Department of Engineering 
-Enzo Ferrari (UNIMORE)
+Project for *Real-Time Embedded Systems* course - *Department of Engineering 
+Enzo Ferrari* (UNIMORE)
 
 ## Project Statement
-Project nr. 7: **Double Pendulums**. Simulate N double pendulums, where N and 
+Project nr. 7: *Double Pendulums*. Simulate N double pendulums, where N and 
 their initial conditions are read from a text file. Trajectory must be 
 visualized as in the following examples: <br/>
 https://www.youtube.com/watch?v=V4hvENrtMeE <br/>
@@ -39,27 +39,27 @@ In the file, these parameters must be written as in the following example:
 > 2 x0=640 y0=400 l1=50 l2=50 m1=60 m2=5 th1=45 th2=30 </br>
 
 The following figure better explains the use of all the parameters described 
-above (taken from 
-https://www.wired.com/story/fidget-spinners-the-serious-physics-behind-a-double-pendulum-spinner/):
+above (taken from [Wired](https://www.wired.com/story/fidget-spinners-the-serious-physics-behind-a-double-pendulum-spinner/)):
 
 <p align="center">
   <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.jpg">
 </p>
 
 ## Accelerations Computation
-As reported on the [site](https://www.myphysicslab.com/pendulum/double-pendulum-en.html), 
+As reported on [MyPhysicsLab](https://www.myphysicslab.com/pendulum/double-pendulum-en.html), 
 the two formulas used for accelerations computation are the following:
 
 <p align="center">
   <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Formulas.png">
 </p>
 
-
-
-
-
-
-
-
+## Programming Choices
+During the development of the project, the following programming choicese were 
+taken:
+- To make the trajectory displayed by double pendulums more presentable, the 
+gravitational constant has been replaced with a time scale factor `TSCALE`, 
+equals to 0.1.
+- To avoid having a gui too full of pendulums, the maximum number of pendulums 
+has been set to 7.
 
 
