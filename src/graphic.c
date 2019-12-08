@@ -22,14 +22,20 @@ void init_allegro()
 /* Initialization graphic interface */
 void init_gui()
 {
-    rect(screen, PAD, PAD, XWIN - PAD, YWIN - PAD, WHITE);
-    rect(screen, 2 * PAD, 2 * PAD, XWIN - 2 * PAD, YWIN - 2 * PAD, WHITE);
+    int i;
+
+    for (i = 1; i < 8; i++) {
+        rect(screen, i * PAD, i * PAD, XWIN - i * PAD, YWIN - i * PAD, WHITE);
+    }
+
     sprintf(text, "DOUBLE PENDULUMS VIEWER");
     textout_centre_ex(screen, font, text, XWIN/2, YWIN/2 - 30, WHITE, BKG);
-    sprintf(text, "Press ENTER to show pendulums");
+    sprintf(text, "Press ENTER to show double pendulums");
     textout_centre_ex(screen, font, text, XWIN/2, YWIN/2, WHITE, BKG);
     sprintf(text, "ESC to exit");
     textout_centre_ex(screen, font, text, XWIN/2, YWIN/2 + 30, WHITE, BKG);
+    sprintf(text, "Developed by Mirko Cavecchia");
+    textout_centre_ex(screen, font, text, XWIN/2, YWIN/2 + 60, WHITE, BKG);
 }
 
 /* Initial pendulums graphic interface after ENTER pressing */
