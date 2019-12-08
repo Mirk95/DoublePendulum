@@ -29,14 +29,39 @@ are:
 - **l2**: length of the secon rod;
 - **m1**: mass of the first pendulum;
 - **m2**: mass of the second pendulum;
-- **th1**: angle between the vertical and the first rod;
-- **th2**: angle between the vertical and the second rod;
+- **th1**: angle between the vertical and the first rod (expressed in *radians*);
+- **th2**: angle between the vertical and the second rod (expressed in *radians*);
+
+In the file, these parameters must be written as in the following example:
+    > N=3
+    > 0 x0=200 y0=200 l1=50 l2=50 m1=50 m2=20 th1=-90 th2=-90
+    > 1 x0=1130 y0=200 l1=40 l2=40 m1=40 m2=10 th1=180 th2=180
+    > 2 x0=640 y0=400 l1=50 l2=50 m1=60 m2=5 th1=45 th2=30
 
 The following figure better explains the use of all the parameters described 
-above (from https://www.myphysicslab.com/pendulum/double-pendulum-en.html):<br/>
+above (taken from https://www.myphysicslab.com/pendulum/double-pendulum-en.html):
 
 <p align="center">
-  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.png" width="350">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.png">
 </p>
 
-ok.
+## Accelerations Computation
+As reported on the [site] (https://www.myphysicslab.com/pendulum/double-pendulum-en.html), 
+the two formulas used for accelerations computation are the following:
+
+
+$$
+\theta_1'' = \frac{-g(2m_1 + m_2) \sin(\theta_1) - m_2 g \sin(\theta_1 - 
+2\theta_2) - 2\sin(\theta_1 - \theta_2)m_2(\theta_2'^2 l_2 + \theta_1'^2 
+l_1 \cos(\theta_1 - \theta_2))}{l_1 (2m_1 + m_2 - m_2 \cos(2\theta_1 - 
+2\theta_2))}
+$$
+
+
+
+
+
+
+
+
+
