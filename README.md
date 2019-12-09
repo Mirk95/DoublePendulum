@@ -20,7 +20,7 @@ https://github.com/glipari/ptask.
 The purpose of this application is to show the chaotic movement of **N** double 
 pendulums, where the number of pendulums and all the initial parameters 
 are read from a text file called `"params.txt"`.
-In the file, the initial parameters required for creating the double pendulum 
+In the file, the initial parameters required for creating each double pendulum 
 are:
 - **id**: pendulum identifier (from 0 to N-1);
 - **x0**: x variable of initial point;
@@ -38,15 +38,16 @@ In the file, these parameters must be written as in the following example:
 > 1 x0=1130 y0=200 l1=40 l2=40 m1=40 m2=10 th1=180 th2=180 </br>
 > 2 x0=640 y0=400 l1=50 l2=50 m1=60 m2=5 th1=45 th2=30 </br>
 
-You are free to modify these parameters in the `params.txt` file at any time, 
-keeping that the first mass m1 must to be much greater than the second mass m2, 
-to avoid abnormal behaviors of pendulums, such as infinity cicles.
+You are free to remove or add new pendulums and to modify these parameters in 
+the `params.txt` file at any time, keeping mind to respect the syntax of the 
+file, as shown above.
 
 The following figure (taken from [Wired](https://www.wired.com/story/fidget-spinners-the-serious-physics-behind-a-double-pendulum-spinner/)) 
 better explains the use of all the parameters described above :
 
 <p align="center">
-  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.jpg">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/
+  images/Double_Pendulum.jpg">
 </p>
 
 ## Accelerations Computation
@@ -55,7 +56,8 @@ double-pendulum-en.html), the two formulas used for accelerations computation
 are the following:
 
 <p align="center">
-  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Formulas.png">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/
+  Formulas.png">
 </p>
 
 ## Programming Choices
@@ -76,6 +78,12 @@ the two masses and to update the velocities and the angles of double pendulums
 in a shared memory each `PER_P` milliseconds.
 - **1** graphic task: it has to read the shared memory and to update the screen 
 each `PER_G` milliseconds.
+
+## Application Structure
+<p align="center">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/
+  Application_Structure.png">
+</p>
 
 ## Compile and Run
 To run the application, execute the following commands:
