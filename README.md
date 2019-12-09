@@ -46,8 +46,7 @@ The following figure (taken from [Wired](https://www.wired.com/story/fidget-spin
 better explains the use of all the parameters described above :
 
 <p align="center">
-  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/
-  images/Double_Pendulum.jpg">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.jpg">
 </p>
 
 ## Accelerations Computation
@@ -56,8 +55,7 @@ double-pendulum-en.html), the two formulas used for accelerations computation
 are the following:
 
 <p align="center">
-  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/
-  Formulas.png">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Formulas.png">
 </p>
 
 ## Programming Choices
@@ -81,8 +79,7 @@ each `PER_G` milliseconds.
 
 ## Application Structure
 <p align="center">
-  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/
-  Application_Structure.png">
+  <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Application_Structure.png">
 </p>
 
 ## Compile and Run
