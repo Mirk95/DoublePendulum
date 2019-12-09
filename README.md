@@ -11,10 +11,10 @@ https://www.youtube.com/watch?v=QXf95_EKS6E <br/>
 Developed by Mirko Cavecchia
 
 ## Libraries
-The project is based on `Allegro 4` graphic library (available at this link
-http://liballeg.org/download.html), and on `Ptask` library, 
-Periodic Real-Time Task interface to pthreads, (available at this link 
-https://github.com/glipari/ptask).
+The project is based on `Allegro 4` graphic library, available at this link
+http://liballeg.org/download.html, and on `Ptask` library 
+(Periodic Real-Time Task interface to pthreads), available at this link 
+https://github.com/glipari/ptask.
 
 ## Project Explanation
 The purpose of this application is to show the chaotic movement of **N** double 
@@ -29,8 +29,8 @@ are:
 - **l2**: length of the secon rod;
 - **m1**: mass of the first pendulum;
 - **m2**: mass of the second pendulum;
-- **th1**: angle between the vertical and the first rod (expressed in *radians*);
-- **th2**: angle between the vertical and the second rod (expressed in *radians*);
+- **th1**: angle between the vertical and the first rod (expressed in radians);
+- **th2**: angle between the vertical and the second rod (expressed in radians);
 
 In the file, these parameters must be written as in the following example:
 > N=3 </br>
@@ -38,16 +38,17 @@ In the file, these parameters must be written as in the following example:
 > 1 x0=1130 y0=200 l1=40 l2=40 m1=40 m2=10 th1=180 th2=180 </br>
 > 2 x0=640 y0=400 l1=50 l2=50 m1=60 m2=5 th1=45 th2=30 </br>
 
-The following figure better explains the use of all the parameters described 
-above (taken from [Wired](https://www.wired.com/story/fidget-spinners-the-serious-physics-behind-a-double-pendulum-spinner/)):
+The following figure (taken from [Wired](https://www.wired.com/story/fidget-spinners-the-serious-physics-behind-a-double-pendulum-spinner/)) 
+better explains the use of all the parameters described above :
 
 <p align="center">
   <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Double_Pendulum.jpg">
 </p>
 
 ## Accelerations Computation
-As reported on [MyPhysicsLab](https://www.myphysicslab.com/pendulum/double-pendulum-en.html), 
-the two formulas used for accelerations computation are the following:
+As reported on [MyPhysicsLab](https://www.myphysicslab.com/pendulum/
+double-pendulum-en.html), the two formulas used for accelerations computation 
+are the following:
 
 <p align="center">
   <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Formulas.png">
@@ -60,6 +61,21 @@ taken:
 gravitational constant has been replaced with a time scale factor `TSCALE`, 
 equals to 0.1.
 - To avoid having a gui too full of pendulums, the maximum number of pendulums 
-has been set to 7.
+`MAX_P` has been set to 7. In this way, pendulums will have all the colors 
+described in the standard VGA.
+- The maximum number of previous points shown in the trajectory `TLEN` has been 
+set to 40.
+
+## Compile and Run
+To run the application, execute the following commands:
+- `git clone https://github.com/Mirk95/DoublePendulum.git`: to clone project;
+- `make all`: to remove all compiled files in build directory and build;
+- `make compile`: to compile all C files and put compiled files in build;
+- `make run`: to run the application;
+
+Press ESC to end the program.
+
+
+
 
 
