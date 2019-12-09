@@ -16,7 +16,7 @@
 #define TSCALE      0.1             // Time scale factor
 #define PI          3.14159         // Pi greco
 #define TLEN        40              // Trajectory length
-#define PER_G       57              // Period graphic task
+#define PER_G       70              // Period graphic task
 #define PRIO_G      20              // Priority graphic task
 #define PER_P       20              // Period pendulum task
 #define PRIO_P      10              // Priority pendulum task

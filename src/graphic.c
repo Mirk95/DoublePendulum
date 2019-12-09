@@ -128,6 +128,7 @@ ptask graphic()
                             graph_x1y1[i].x, graph_x1y1[i].y, i+9);
                 circlefill(screen, graph_x2y2[i].x, graph_x2y2[i].y, 5, i+1);
                 draw_trail(i, trajectory[i]);
+                circlefill(screen, 0, 0, 1, BKG);
             }
         }
 

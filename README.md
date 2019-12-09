@@ -29,14 +29,18 @@ are:
 - **l2**: length of the secon rod;
 - **m1**: mass of the first pendulum;
 - **m2**: mass of the second pendulum;
-- **th1**: angle between the vertical and the first rod (expressed in radians);
-- **th2**: angle between the vertical and the second rod (expressed in radians);
+- **th1**: angle between the vertical and the first rod (expressed in degrees);
+- **th2**: angle between the vertical and the second rod (expressed in degrees);
 
 In the file, these parameters must be written as in the following example:
 > N=3 </br>
 > 0 x0=200 y0=200 l1=50 l2=50 m1=50 m2=20 th1=-90 th2=-90 </br>
 > 1 x0=1130 y0=200 l1=40 l2=40 m1=40 m2=10 th1=180 th2=180 </br>
 > 2 x0=640 y0=400 l1=50 l2=50 m1=60 m2=5 th1=45 th2=30 </br>
+
+You are free to modify these parameters in the `params.txt` file at any time, 
+keeping that the first mass m1 must to be much greater than the second mass m2, 
+to avoid abnormal behaviors of pendulums, such as infinity cicles.
 
 The following figure (taken from [Wired](https://www.wired.com/story/fidget-spinners-the-serious-physics-behind-a-double-pendulum-spinner/)) 
 better explains the use of all the parameters described above :
