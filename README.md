@@ -55,7 +55,7 @@ are the following:
 </p>
 
 ## Programming Choices
-During the development of the project, the following programming choicese were 
+During the development of the project, the following programming choices were 
 taken:
 - To make the trajectory displayed by double pendulums more presentable, the 
 gravitational constant has been replaced with a time scale factor `TSCALE`, 
@@ -65,6 +65,13 @@ equals to 0.1.
 described in the standard VGA.
 - The maximum number of previous points shown in the trajectory `TLEN` has been 
 set to 40.
+
+## Tasks
+- **N** double pendulum tasks: each task has to compute the accelerations of 
+the two masses and to update the velocities and the angles of double pendulums 
+in a shared memory each `PER_P` milliseconds.
+- **1** graphic task: it has to read the shared memory and to update the screen 
+each `PER_G` milliseconds.
 
 ## Compile and Run
 To run the application, execute the following commands:
