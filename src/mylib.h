@@ -55,7 +55,7 @@ struct pendulum_t {
 struct mem_t {
     int         end;                // Exit variable: no more tasks
     int         pid[MAX_P + 1];     // Array with tasks' indexes
-    
+
     struct point_t x0y0[MAX_P];     // Position point (x0,y0) -> zero point
     struct point_t x1y1[MAX_P];     // Position point (x1,y1) -> first mass
     struct point_t x2y2[MAX_P];     // Position point (x2,y2) -> second mass

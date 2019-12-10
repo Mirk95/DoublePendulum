@@ -50,9 +50,8 @@ better explains the use of all the parameters described above :
 </p>
 
 ## Accelerations Computation
-As reported on [MyPhysicsLab](https://www.myphysicslab.com/pendulum/
-double-pendulum-en.html), the two formulas used for accelerations computation 
-are the following:
+As reported on [MyPhysicsLab](https://www.myphysicslab.com/pendulum/double-pendulum-en.html), 
+the two formulas used for accelerations computation are the following:
 
 <p align="center">
   <img src="https://github.com/Mirk95/DoublePendulum/blob/master/images/Formulas.png">
