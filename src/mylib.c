@@ -138,8 +138,8 @@ double compute_acceleration1(struct pendulum_t p, double v1, double v2)
     double den = 0;             // Formula denominator
     double res = 0;             // Formula result
 
-    num1 = - TSCALE * (2 * p.m1 + p.m2) * sin(p.th1);
-    num2 = - p.m2 * TSCALE * sin(p.th1 - 2 * p.th2);
+    num1 = - GRAVITY * TSCALE * (2 * p.m1 + p.m2) * sin(p.th1);
+    num2 = - p.m2 * GRAVITY * TSCALE * sin(p.th1 - 2 * p.th2);
     num3 = -2 * sin(p.th1 - p.th2) * p.m2;
     num4 = v2 * v2 * p.l2 + v1 * v1 * p.l1 * cos(p.th1 - p.th2);
     den = p.l1 * (2 * p.m1 + p.m2 - p.m2 * cos(2 *p.th1 - 2 * p.th2));
@@ -160,7 +160,7 @@ double compute_acceleration2(struct pendulum_t p, double v1, double v2)
 
     num1 = 2 * sin(p.th1 - p.th2);
     num2 = (v1 * v1 * p.l1 * (p.m1 + p.m2));
-    num3 = TSCALE * (p.m1 + p.m2) * cos(p.th1);
+    num3 = GRAVITY * TSCALE * (p.m1 + p.m2) * cos(p.th1);
     num4 = v2 * v2 * p.l2 * p.m2 * cos(p.th1 - p.th2);
     den = p.l2 * (2 * p.m1 + p.m2 - p.m2 * cos(2 * p.th1 - 2 * p.th2));
     res = (num1 * (num2 + num3 + num4)) / den;
@@ -200,16 +200,19 @@ void update_positions(struct pendulum_t p, int index)
     k = shared_mem.trail[index - 1].top;
     end_reader();
 
-    start_writer();
     k = (k + 1) % TLEN;
+
+    start_writer();
     shared_mem.x1y1[index - 1].x = p.x0y0.x + p.l1 * sin(p.th1);
     shared_mem.x1y1[index - 1].y = p.x0y0.y + p.l1 * cos(p.th1);
     shared_mem.x2y2[index - 1].x = p.x0y0.x + p.l1 * sin(p.th1) + 
                                     p.l2 * sin(p.th2);
     shared_mem.x2y2[index - 1].y = p.x0y0.y + p.l1 * cos(p.th1) + 
                                     p.l2 * cos(p.th2);
-    shared_mem.trail[index - 1].x[k] = shared_mem.x2y2[index - 1].x;
-    shared_mem.trail[index - 1].y[k] = shared_mem.x2y2[index - 1].y;
+    shared_mem.trail[index - 1].x[k] = p.x0y0.x + p.l1 * sin(p.th1) + 
+                                    p.l2 * sin(p.th2);
+    shared_mem.trail[index - 1].y[k] = p.x0y0.y + p.l1 * cos(p.th1) + 
+                                    p.l2 * cos(p.th2);
     shared_mem.trail[index - 1].top = k;
     end_writer();
 }
@@ -299,12 +302,10 @@ void manager()
 
     // Create pendulum tasks
     params = init_param(PRIO_P, PER_P);
-    for (i = 0; i < MAX_P; i++) {
-        if (inborder_p[i].id != -1) {
-            pid_p = ptask_create_param(pend, &params);
-            start_writer();
-            shared_mem.pid[i + 1] = pid_p;
-            end_writer();
-        }
+    for (i = 0; i < num_pends; i++) {
+        pid_p = ptask_create_param(pend, &params);
+        start_writer();
+        shared_mem.pid[i + 1] = pid_p;
+        end_writer();
     }
 }

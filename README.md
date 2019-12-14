@@ -61,13 +61,13 @@ the two formulas used for accelerations computation are the following:
 During the development of the project, the following programming choices were 
 taken:
 - To make the trajectory displayed by double pendulums more presentable, the 
-gravitational constant has been replaced with a time scale factor `TSCALE`, 
-equals to 0.1.
+gravitational constant `GRAVITY` has been moltiplied by a time scale factor 
+`TSCALE`, equals to 0.1.
 - To avoid having a gui too full of pendulums, the maximum number of pendulums 
 `MAX_P` has been set to 7. In this way, pendulums will have all the colors 
 described in the standard VGA.
 - The maximum number of previous points shown in the trajectory `TLEN` has been 
-set to 40.
+set to 10.
 
 ## Tasks
 - **N** double pendulum tasks: each task has to compute the accelerations of 

@@ -3,6 +3,8 @@
 
 #include "mylib.h"
 
+int             num_pends;          // Number of pendulums in file
+
 struct pendulum_t inborder_p[MAX_P];    // Struct MAX_P correct double pendulums
 
 

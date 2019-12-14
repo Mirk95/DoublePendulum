@@ -51,22 +51,20 @@ void retrieve_sm(struct point_t *g_x0y0, struct point_t *g_x1y1,
                 struct point_t *g_x2y2, struct cbuf_t *t)
 {
     int i, j;
-    for (i = 0; i < MAX_P; i++) {
-        if (inborder_p[i].id != -1) {
-            start_reader();
-            g_x0y0[i].x = shared_mem.x0y0[i].x;
-            g_x0y0[i].y = shared_mem.x0y0[i].y;
-            g_x1y1[i].x = shared_mem.x1y1[i].x;
-            g_x1y1[i].y = shared_mem.x1y1[i].y;
-            g_x2y2[i].x = shared_mem.x2y2[i].x;
-            g_x2y2[i].y = shared_mem.x2y2[i].y;
-            t[i].top = shared_mem.trail[i].top;
-            for (j = 0; j < TLEN; j++) {
-                t[i].x[j] = shared_mem.trail[i].x[j];
-                t[i].y[j] = shared_mem.trail[i].y[j];
-            }
-            end_reader();
+    for (i = 0; i < num_pends; i++) {
+        start_reader();
+        g_x0y0[i].x = shared_mem.x0y0[i].x;
+        g_x0y0[i].y = shared_mem.x0y0[i].y;
+        g_x1y1[i].x = shared_mem.x1y1[i].x;
+        g_x1y1[i].y = shared_mem.x1y1[i].y;
+        g_x2y2[i].x = shared_mem.x2y2[i].x;
+        g_x2y2[i].y = shared_mem.x2y2[i].y;
+        t[i].top = shared_mem.trail[i].top;
+        for (j = 0; j < TLEN; j++) {
+            t[i].x[j] = shared_mem.trail[i].x[j];
+            t[i].y[j] = shared_mem.trail[i].y[j];
         }
+        end_reader();
     }
 }
 
@@ -77,16 +75,14 @@ void draw_trail(int color, struct cbuf_t t)
     double x, y = 0;
 
     for (j = 0; j < TLEN; j++) {
-        if (t.top != -1) {
-            k = (t.top + TLEN - j) % TLEN;
-            x = t.x[k];
-            y = t.y[k];
-            if (x == -1 && y == -1) {
-                circlefill(screen, x, y, 1, BKG);
-            }
-            else {
-                circlefill(screen, x, y, 1, color + 9);
-            }
+        k = (t.top + TLEN - j) % TLEN;
+        x = t.x[k];
+        y = t.y[k];
+        if (x == -1 && y == -1) {
+            circlefill(screen, x, y, 1, BKG);
+        }
+        else {
+            circlefill(screen, x, y, 1, color + 9);
         }
     }
 }
@@ -115,21 +111,19 @@ ptask graphic()
 
         retrieve_sm(graph_x0y0, graph_x1y1, graph_x2y2, trajectory);
 
-        for (i = 0; i < MAX_P; i++) {
-            if (inborder_p[i].id != -1) {
-                circlefill(screen, graph_x0y0[i].x, graph_x0y0[i].y, 5, i+1);
-                sprintf(text, "%d", inborder_p[i].id);
-                textout_centre_ex(screen, font, text, graph_x0y0[i].x, 
-                                graph_x0y0[i].y - 20, WHITE, BKG);
-                line(screen, graph_x1y1[i].x, graph_x1y1[i].y, 
-                            graph_x0y0[i].x, graph_x0y0[i].y, i+9);
-                circlefill(screen, graph_x1y1[i].x, graph_x1y1[i].y, 5, i+1);
-                line(screen, graph_x2y2[i].x, graph_x2y2[i].y, 
-                            graph_x1y1[i].x, graph_x1y1[i].y, i+9);
-                circlefill(screen, graph_x2y2[i].x, graph_x2y2[i].y, 5, i+1);
-                draw_trail(i, trajectory[i]);
-                circlefill(screen, 0, 0, 1, BKG);
-            }
+        for (i = 0; i < num_pends; i++) {
+            circlefill(screen, graph_x0y0[i].x, graph_x0y0[i].y, 5, i+1);
+            sprintf(text, "%d", inborder_p[i].id);
+            textout_centre_ex(screen, font, text, graph_x0y0[i].x, 
+                            graph_x0y0[i].y - 20, WHITE, BKG);
+            line(screen, graph_x1y1[i].x, graph_x1y1[i].y, 
+                        graph_x0y0[i].x, graph_x0y0[i].y, i+9);
+            circlefill(screen, graph_x1y1[i].x, graph_x1y1[i].y, 5, i+1);
+            line(screen, graph_x2y2[i].x, graph_x2y2[i].y, 
+                        graph_x1y1[i].x, graph_x1y1[i].y, i+9);
+            circlefill(screen, graph_x2y2[i].x, graph_x2y2[i].y, 5, i+1);
+            draw_trail(i, trajectory[i]);
+            circlefill(screen, 0, 0, 1, BKG);
         }
 
         check_deadline_miss_g();

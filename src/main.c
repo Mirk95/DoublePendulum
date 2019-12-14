@@ -7,8 +7,8 @@
 #include "main.h"
 #include "graphic.h"
 
-int             k = 0;                  // Character for keyboard input
-int             num_pends = 0;          // Number of pendulums in file
+int             k;                      // Character for keyboard input
+int             num_pends;              // Number of pendulums in file
 
 struct pendulum_t read_p[MAX_P];        // Struct MAX_P double pendulums in file
 struct pendulum_t inborder_p[MAX_P];    // Struct MAX_P correct double pendulums
@@ -125,17 +125,15 @@ void check_join()
     end_writer();
 
     // Retrieve all pid from shared memory:
-    for (i = 0; i < MAX_P + 1; i++) {
+    for (i = 0; i < num_pends + 1; i++) {
         start_reader();
         local_pid[i] = shared_mem.pid[i];
         end_reader();
     }
 
     // Wait all the tasks to end:
-    for (i = 0; i < MAX_P + 1; i++) {
-        if (local_pid[i] != -1) {
-            pthread_join(ptask_get_threadid(local_pid[i]), 0);
-        }
+    for (i = 0; i < num_pends + 1; i++) {
+        pthread_join(ptask_get_threadid(local_pid[i]), 0);
     }
 }
 

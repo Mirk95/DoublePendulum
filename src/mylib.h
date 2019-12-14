@@ -15,10 +15,11 @@
 #define MAX_P       7               // Max number of pendulums
 #define TSCALE      0.1             // Time scale factor
 #define PI          3.14159         // Pi greco
-#define TLEN        40              // Trajectory length
-#define PER_G       70              // Period graphic task
-#define PRIO_G      20              // Priority graphic task
-#define PER_P       20              // Period pendulum task
+#define GRAVITY     9.81            // Gravitational Constant
+#define TLEN        10              // Trajectory length
+#define PER_G       40              // Period graphic task
+#define PRIO_G      10              // Priority graphic task
+#define PER_P       40              // Period pendulum task
 #define PRIO_P      10              // Priority pendulum task
 
 
