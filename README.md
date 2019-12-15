@@ -34,9 +34,9 @@ are:
 
 In the file, these parameters must be written as in the following example:
 > N=3 </br>
-> 0 x0=200 y0=200 l1=50 l2=50 m1=50 m2=20 th1=-90 th2=-90 </br>
-> 1 x0=1130 y0=200 l1=40 l2=40 m1=40 m2=10 th1=180 th2=180 </br>
-> 2 x0=640 y0=400 l1=50 l2=50 m1=60 m2=5 th1=45 th2=30 </br>
+> 0 x0=200 y0=200 l1=50 l2=50 m1=10 m2=20 th1=-90 th2=-90 </br>
+> 1 x0=1130 y0=200 l1=40 l2=40 m1=40 m2=10 th1=45 th2=30 </br>
+> 2 x0=640 y0=400 l1=45 l2=50 m1=10 m2=20 th1=45 th2=30 </br>
 
 You are free to remove or add new pendulums and to modify these parameters in 
 the `params.txt` file at any time, keeping mind to respect the syntax of the 
@@ -68,6 +68,9 @@ gravitational constant `GRAVITY` has been moltiplied by a time scale factor
 described in the standard VGA.
 - The maximum number of previous points shown in the trajectory `TLEN` has been 
 set to 10.
+- To avoid abnormal behaviors by pendulums, the parameters read from the text 
+file must be proportional to each other. In particular, try to avoid starting 
+pendulums from too high angles and having too high masses and lengths.
 
 ## Tasks
 - **N** double pendulum tasks: each task has to compute the accelerations of 
